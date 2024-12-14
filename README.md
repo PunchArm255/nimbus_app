@@ -1,4 +1,4 @@
-<img width="750" alt="nimbus banner" src="https://github.com/user-attachments/assets/2acae460-a779-4900-81ed-e2a30bd3a92f" />
+<img width="846" alt="nimbus banner" src="https://github.com/user-attachments/assets/286bd698-e51e-4636-a037-84a75785aed6" />
 
 # Nimbus - Max out your stats IRL ☁️
 
