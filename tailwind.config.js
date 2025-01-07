@@ -1,13 +1,17 @@
 /** @type {import('tailwindcss').Config} */
 module.exports = {
-  content: ["./index.html", "./src/**/*.{js,ts,jsx,tsx}"],
+  content: ["./public/*.{html,js}"],
   theme: {
     extend: {
+      colors: {
+        yel: "#FFDB4D",
+        lyel: "#FFF8DE",
+        br: "7D6000",
+      },
       fontFamily: {
-        "red-hat": ['"Red Hat Display"', "sans-serif"],
+        redHat: ["Red Hat Display", "sans-serif"],
       },
     },
   },
-  variants: {},
   plugins: [],
 };
