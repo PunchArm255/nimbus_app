@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Nimbus - Home</title>
+    <link rel="stylesheet" href="dist/output.css" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Red+Hat+Display:wght@400;500;700&display=swap"
+      rel="stylesheet"
+    />
+  </head>
+  <body class="bg-[#FFF8DE] font-redHat text-[#483700]">
+    <!-- Main Container -->
+    <div class="flex h-screen">
+      <!-- Sidebar -->
+      <div class="bg-yel w-20 flex flex-col justify-between items-center py-6">
+        <!-- Nimbus Logo -->
+        <img src="assets/cloud.svg" alt="Nimbus Logo" class="w-10 h-10" />
+        <!-- Settings Icon -->
+        <img src="assets/settings.svg" alt="Settings" class="w-8 h-8" />
+      </div>
+
+      <!-- Main Content -->
+      <div class="flex-1 p-8 space-y-6">
+        <!-- Header -->
+        <h1 class="text-3xl font-bold">Dashboard</h1>
+
+        <!-- User Profile Section -->
+        <div class="bg-white rounded-lg shadow p-6 flex items-center space-x-6">
+          <img
+            src="https://via.placeholder.com/64"
+            alt="Profile Picture"
+            class="rounded-full w-16 h-16"
+          />
+          <div class="flex-1">
+            <h2 class="text-lg font-bold">PunchArm255</h2>
+            <p class="text-sm text-[#483700]">Newbie</p>
+            <div class="space-y-2 mt-4">
+              <div class="flex justify-between items-center">
+                <span>Stat 1</span>
+                <span>100%</span>
+              </div>
+              <div class="h-2 bg-[#FFF8DE] rounded-full">
+                <div
+                  class="h-2 bg-[#483700] rounded-full"
+                  style="width: 100%"
+                ></div>
+              </div>
+              <div class="flex justify-between items-center">
+                <span>Stat 2</span>
+                <span>100%</span>
+              </div>
+              <div class="h-2 bg-[#FFF8DE] rounded-full">
+                <div
+                  class="h-2 bg-[#483700] rounded-full"
+                  style="width: 100%"
+                ></div>
+              </div>
+              <div class="flex justify-between items-center">
+                <span>Stat 3</span>
+                <span>100%</span>
+              </div>
+              <div class="h-2 bg-[#FFF8DE] rounded-full">
+                <div
+                  class="h-2 bg-[#483700] rounded-full"
+                  style="width: 100%"
+                ></div>
+              </div>
+            </div>
+          </div>
+          <button class="bg-yel p-2 rounded-full shadow">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              class="h-6 w-6 text-[#483700]"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M12 4v16m8-8H4"
+              />
+            </svg>
+          </button>
+        </div>
+
+        <!-- Activity Section -->
+        <div>
+          <h2 class="text-2xl font-bold mb-4">Activity</h2>
+          <div class="bg-white rounded-lg shadow h-40"></div>
+        </div>
+      </div>
+
+      <!-- Spy List Section -->
+      <div class="w-64 bg-white rounded-lg shadow p-6">
+        <h2 class="text-2xl font-bold mb-4">Spy List</h2>
+        <ul class="space-y-4">
+          <li class="flex items-center space-x-4">
+            <div class="w-10 h-10 bg-[#483700] rounded-full"></div>
+            <div>
+              <p class="font-bold">BloodyBry</p>
+              <p class="text-sm">Newbie</p>
+            </div>
+          </li>
+          <li class="flex items-center space-x-4">
+            <div class="w-10 h-10 bg-[#483700] rounded-full"></div>
+            <div>
+              <p class="font-bold">KENTO</p>
+              <p class="text-sm">Newbie</p>
+            </div>
+          </li>
+          <li class="flex items-center space-x-4">
+            <div class="w-10 h-10 bg-[#483700] rounded-full"></div>
+            <div>
+              <p class="font-bold">KENIYSN</p>
+              <p class="text-sm">Newbie</p>
+            </div>
+          </li>
+          <li class="flex items-center space-x-4">
+            <div class="w-10 h-10 bg-[#483700] rounded-full"></div>
+            <div>
+              <p class="font-bold">mounir</p>
+              <p class="text-sm">Newbie</p>
+            </div>
+          </li>
+        </ul>
+        <p class="text-right mt-4">Total 4</p>
+      </div>
+    </div>
+  </body>
+</html>
