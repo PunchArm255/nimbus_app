@@ -1,11 +1,14 @@
+import React from "react";
 import { useNavigate } from "react-router-dom";
+import Logo from "../assets/logo.svg";
 
 export default function SignIn() {
   const navigate = useNavigate();
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100">
-      <div className="p-8 bg-white shadow-md rounded-md max-w-md w-full">
+    <div className="min-h-screen flex items-center justify-center bg-[#FFDB4D]">
+      <div className="p-8 bg-[#FFF8DE] shadow-md shadow-[#FFF8DE] rounded-3xl max-w-md w-full">
+      <img src={Logo} alt="Nimbus Logo" className="w-50 h-50" />
         <h1 className="text-2xl font-bold text-center mb-4">Sign In</h1>
         <form>
           <div className="mb-4">
@@ -32,7 +35,7 @@ export default function SignIn() {
           </div>
           <button
             type="submit"
-            className="w-full py-2 px-4 bg-indigo-600 text-white rounded-md hover:bg-indigo-700"
+            className="w-full py-2 px-4 bg-[#FFDB4D] text-white rounded-md hover:bg-[#FFEA96]"
           >
             Sign In
           </button>

@@ -9,7 +9,7 @@ export default function Home() {
   return (
     <div className="flex h-screen bg-[#FFF8DE] font-redHat">
       {/* Sidebar */}
-      <div className="bg-[#FFDB4D] w-23 flex flex-col justify-between items-center py-6 m-5 rounded-3xl">
+      <div className="bg-[#FFDB4D] shadow-lg shadow-[#FFDB4D] w-23 flex flex-col justify-between items-center py-6 m-5 rounded-3xl">
         {/* Nimbus Logo */}
         <img src={NimbusLogo} alt="Nimbus Logo" className="w-10 h-10" />
         {/* Settings Icon */}
@@ -28,10 +28,10 @@ export default function Home() {
                 <img
                   src={ProfileIcon}
                   alt="Profile Picture"
-                  className="rounded-full w-12 h-12"
+                  className="rounded-full w-15 h-15"
                 />
                 <div>
-                  <h2 className="text-lg font-bold text-[#544B3D]">PunchArm255</h2>
+                  <h2 className="text-2xl font-bold text-[#544B3D]">PunchArm255</h2>
                   <p className="text-sm text-[#544B3D]">Newbie</p>
                 </div>
               </div>
@@ -75,7 +75,7 @@ export default function Home() {
 
         {/* Spy List Section (Right Side) */}
         <div className="w-1/6 ml-6">
-        <h2 className="text-4xl font-bold text-[#544B3D]">Spy List</h2>
+        <h2 className="text-4xl font-bold text-[#544B3D]">Friends</h2>
           <div className="bg-white rounded-3xl shadow-xl p-6 h-[94.5%] mt-4 flex flex-col justify-between">
             <div>
               <ul className="space-y-4">
