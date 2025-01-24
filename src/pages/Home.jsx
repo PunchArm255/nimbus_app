@@ -21,7 +21,7 @@ const Home = () => {
         >
           <img src={SettingsIcon} alt="Settings" className="w-8 h-8" />
           {showSettings && (
-            <div className="absolute bottom-12 left-0 bg-white shadow-lg rounded-lg py-2 px-4 text-sm">
+            <div className="absolute bottom-12 left-0 bg-white shadow-lg rounded-xl py-2 px-4 text-sm">
               <div>Language</div>
               <div>Accessibility</div>
               <div>About</div>
@@ -32,34 +32,34 @@ const Home = () => {
 
       {/* Middle Section */}
       <div className="flex-grow px-8 py-6">
-        <h1 className="text-2xl font-bold">Dashboard</h1>
-        <p className="text-lg mt-1">Good morning, Mohammed!</p>
+        <h1 className="text-3xl font-black">Dashboard</h1>
+        <p className="text-sm font-semibold">Good morning, Mohammed!</p>
 
         {/* Stats Section */}
         <div className="flex mt-6">
-          <div className="flex-grow bg-gray-100 rounded-lg p-6">Stats box</div>
+          <div className="flex-grow bg-white rounded-xl p-6 font-black text-xl">PunchArm255</div>
 
           <div className="ml-6 flex flex-col justify-between">
-            <div className="bg-gray-100 rounded-lg p-4 flex flex-col items-center">
-              <img src={StreakIcon} alt="Streak" className="w-8 h-8 mb-2" />
+            <div className="bg-white rounded-xl p-4 flex flex-col items-center font-black">
+              <img src={StreakIcon} alt="Streak" className="w-10 h-10" />
               <span>Streak</span>
             </div>
 
-            <div className="bg-gray-100 rounded-lg p-4 flex flex-col items-center mt-4">
-              <img src={BadgeIcon} alt="Badge" className="w-8 h-8 mb-2" />
+            <div className="bg-white rounded-xl p-4 flex flex-col items-center mt-4 font-black">
+              <img src={BadgeIcon} alt="Badge" className="w-10 h-10" />
               <span>Badges</span>
             </div>
           </div>
         </div>
 
         {/* Activity Box */}
-        <div className="bg-gray-100 rounded-lg p-6 mt-6">Activity</div>
+        <div className="bg-white rounded-xl p-6 mt-6 font-black text-xl">Activity</div>
       </div>
 
       {/* Right Section */}
-      <div className="w-80 border-l border-gray-300 px-6 py-6 flex flex-col">
+      <div className="w-80 border-l-2 border-[#D3CFC3] px-6 py-6 flex flex-col">
         <div className="flex justify-between items-center">
-          <button className="bg-gray-100 rounded-full p-2">
+          <button className="bg-white rounded-xl p-2 w-10 h-10">
             <img src={BellIcon} alt="Notifications" className="w-6 h-6" />
           </button>
           <img
@@ -70,17 +70,17 @@ const Home = () => {
         </div>
 
         {/* Search Bar */}
-        <div className="mt-6 flex items-center bg-gray-100 rounded-lg px-4 py-2">
-          <img src={SearchIcon} alt="Search" className="w-6 h-6 mr-2" />
+        <div className="mt-6 flex items-center bg-[white] rounded-xl px-4 py-2 h-11">
+          <img src={SearchIcon} alt="Search" className="w-5 h-5 mr-2" />
           <input
             type="text"
             placeholder="Search for friends"
-            className="bg-transparent outline-none flex-grow"
+            className="bg-transparent outline-none flex-grow font-semibold text-sm"
           />
         </div>
 
-        {/* Placeholder Box */}
-        <div className="bg-gray-100 rounded-lg flex-grow mt-6">Placeholder</div>
+        {/* Friends Box */}
+        <div className="bg-white rounded-xl flex-grow p-6 mt-4 font-black text-xl">Friends</div>
       </div>
     </div>
   );
