@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import NimbusLogo from "../assets/cloud.svg";
 import SettingsIcon from "../assets/settings.svg";
 import ProfileIcon from "../assets/profile.png";
@@ -9,6 +10,7 @@ import BellIcon from "../assets/bell.svg";
 
 const Home = () => {
   const [showSettings, setShowSettings] = useState(false);
+  const navigate = useNavigate();
 
   return (
     <div className="flex h-screen font-['Red_Hat_Display'] text-[#544B3D] bg-[#FAF7EC]">
@@ -44,7 +46,7 @@ const Home = () => {
                 <div className="font-semibold text-lg mt-[-4px]">Newbie</div>
               </div>
               <button
-                onClick={() => navigate('/pages/stats.jsx')}
+                onClick={() => navigate("/Stats")}
                 className="bg-[#FFDB33] font-black text-sm rounded-xl px-4 py-2"
               >
                 View All
