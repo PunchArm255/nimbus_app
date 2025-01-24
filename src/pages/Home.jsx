@@ -13,7 +13,7 @@ const Home = () => {
   return (
     <div className="flex h-screen font-['Red_Hat_Display'] text-[#544B3D] bg-[#FAF7EC]">
       {/* Sidebar */}
-      <div className="bg-[#FFDB33] w-20 flex flex-col justify-between items-center py-4">
+      <div className="bg-[#FFDB33] w-20 flex flex-col rounded-r-4xl justify-between items-center py-4">
         <img src={NimbusLogo} alt="Nimbus Logo" className="w-10 h-10" />
         <button
           onClick={() => setShowSettings(!showSettings)}
@@ -37,20 +37,62 @@ const Home = () => {
 
         {/* Stats Section */}
         <div className="flex mt-6">
-          <div className="flex-grow bg-white rounded-xl p-6 font-black text-xl">PunchArm255</div>
-
-          <div className="ml-6 flex flex-col justify-between">
-            <div className="bg-white rounded-xl p-4 flex flex-col items-center font-black">
-              <img src={StreakIcon} alt="Streak" className="w-10 h-10" />
-              <span>Streak</span>
+          <div className="flex-grow bg-white rounded-xl p-6">
+            <div className="flex justify-between items-center">
+              <div>
+                <div className="font-black text-2xl leading-none">PunchArm255</div>
+                <div className="font-semibold text-lg mt-[-4px]">Newbie</div>
+              </div>
+              <button
+                onClick={() => navigate('/pages/stats.jsx')}
+                className="bg-[#FFDB33] font-black text-sm rounded-xl px-4 py-2"
+              >
+                View All
+              </button>
             </div>
 
-            <div className="bg-white rounded-xl p-4 flex flex-col items-center mt-4 font-black">
-              <img src={BadgeIcon} alt="Badge" className="w-10 h-10" />
+            <div className="mt-3 space-y-3">
+              <div>
+                <div className="flex justify-between font-black text-lg mb-1">
+                  <span>Stat 1</span>
+                  <span>100%</span>
+                </div>
+                <div className="w-full bg-gray-200 rounded-full h-2">
+                  <div className="bg-[#FFDB33] h-2 rounded-full" style={{ width: "100%" }}></div>
+                </div>
+              </div>
+              <div>
+                <div className="flex justify-between font-black text-lg mb-1">
+                  <span>Stat 2</span>
+                  <span>100%</span>
+                </div>
+                <div className="w-full bg-gray-200 rounded-full h-2">
+                  <div className="bg-[#FFDB33] h-2 rounded-full" style={{ width: "100%" }}></div>
+                </div>
+              </div>
+              <div>
+                <div className="flex justify-between font-black text-lg mb-1">
+                  <span>Stat 3</span>
+                  <span>100%</span>
+                </div>
+                <div className="w-full bg-gray-200 rounded-full h-2">
+                  <div className="bg-[#FFDB33] h-2 rounded-full" style={{ width: "100%" }}></div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div className="ml-6 flex flex-col justify-between">
+            <div className="bg-white rounded-xl p-4 text-xl flex flex-col items-center font-black w-30 h-30">
+              <img src={StreakIcon} alt="Streak" className="w-15 h-15" />
+              <span>Streak</span>
+            </div>
+            <div className="bg-white rounded-xl p-4 text-xl flex flex-col items-center mt-4 font-black w-30 h-30">
+              <img src={BadgeIcon} alt="Badge" className="w-15 h-15" />
               <span>Badges</span>
             </div>
           </div>
         </div>
+
 
         {/* Activity Box */}
         <div className="bg-white rounded-xl p-6 mt-6 font-black text-xl">Activity</div>
