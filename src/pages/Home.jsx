@@ -34,8 +34,8 @@ const Home = () => {
 
       {/* Middle Section */}
       <div className="flex-grow px-8 py-6">
-        <h1 className="text-3xl font-black">Dashboard</h1>
-        <p className="text-sm font-semibold">Good morning, Mohammed!</p>
+        <h1 className="text-3xl font-black leading-none">Dashboard</h1>
+        <p className="text-sm font-semibold mt-[-4px]">Good morning, Mohammed!</p>
 
         {/* Stats Section */}
         <div className="flex mt-6">
