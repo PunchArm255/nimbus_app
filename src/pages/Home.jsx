@@ -13,7 +13,7 @@ const Home = () => {
   const navigate = useNavigate();
 
   return (
-    <div className="flex h-screen font-['Red_Hat_Display'] text-[#544B3D] bg-[#FAF7EC]">
+    <div className="flex h-screen font-RedHatDisplay text-[#544B3D] bg-[#FAF7EC]">
       {/* Sidebar */}
       <div className="bg-[#FFDB33] w-20 flex flex-col rounded-r-4xl justify-between items-center py-4">
         <img src={NimbusLogo} alt="Nimbus Logo" className="w-10 h-10" />
@@ -56,7 +56,7 @@ const Home = () => {
             <div className="mt-3 space-y-3">
               <div>
                 <div className="flex justify-between font-black text-lg mb-1">
-                  <span>Stat 1</span>
+                  <span>Social</span>
                   <span>100%</span>
                 </div>
                 <div className="w-full bg-gray-200 rounded-full h-2">
@@ -65,7 +65,7 @@ const Home = () => {
               </div>
               <div>
                 <div className="flex justify-between font-black text-lg mb-1">
-                  <span>Stat 2</span>
+                  <span>Physical</span>
                   <span>100%</span>
                 </div>
                 <div className="w-full bg-gray-200 rounded-full h-2">
@@ -74,7 +74,7 @@ const Home = () => {
               </div>
               <div>
                 <div className="flex justify-between font-black text-lg mb-1">
-                  <span>Stat 3</span>
+                  <span>Lifestyle</span>
                   <span>100%</span>
                 </div>
                 <div className="w-full bg-gray-200 rounded-full h-2">
