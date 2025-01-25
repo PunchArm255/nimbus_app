@@ -1,5 +1,6 @@
-import React, { useState } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
+import NimbusCloud from "../assets/cloud2.svg";
 import NimbusLogo from "../assets/cloud.svg";
 import SettingsIcon from "../assets/settings.svg";
 import ProfileIcon from "../assets/profile.png";
@@ -20,7 +21,35 @@ const Stats = () => {
         { name: "Cognitive", value: 0 },
         { name: "Emotional", value: 0 },
     ]);
+
+    const [sidebarExpanded, setSidebarExpanded] = useState(false);
+    const sidebarRef = useRef(null);
+
     const navigate = useNavigate();
+
+    // Close sidebar if click is outside
+    useEffect(() => {
+        function handleClickOutside(e) {
+            if (sidebarRef.current && !sidebarRef.current.contains(e.target)) {
+                setSidebarExpanded(false);
+            }
+        }
+        document.addEventListener("mousedown", handleClickOutside);
+        return () => {
+            document.removeEventListener("mousedown", handleClickOutside);
+        };
+    }, []);
+
+    useEffect(() => {
+        const storedStats = JSON.parse(localStorage.getItem("stats"));
+        if (storedStats) {
+            setStats(storedStats);
+        }
+    }, []);
+
+    useEffect(() => {
+        localStorage.setItem("stats", JSON.stringify(stats));
+    }, [stats]);
 
     const questions = {
         Social: [
@@ -53,14 +82,12 @@ const Stats = () => {
     const levels = ["Not Active", "Beginner", "Intermediate", "Advanced", "Expert"];
 
     const handleAnswer = (levelIndex) => {
-        setSelectedLevel(levelIndex * 20); // Convert level to percentage
+        setSelectedLevel(levelIndex * 20);
     };
 
     const calculatePercentage = () => {
         if (answers.length === 0) return 0;
-        return Math.round(
-            answers.reduce((sum, value) => sum + value, 0) / answers.length
-        );
+        return Math.round(answers.reduce((sum, value) => sum + value, 0) / answers.length);
     };
 
     const handleSubmit = () => {
@@ -80,27 +107,26 @@ const Stats = () => {
     return (
         <div className="flex h-screen font-['Red_Hat_Display'] text-[#544B3D] bg-[#FAF7EC] relative">
             {/* Sidebar */}
-            <div className="bg-[#FFDB33] w-20 flex flex-col rounded-r-4xl justify-between items-center py-4">
-                <img src={NimbusLogo} alt="Nimbus Logo" className="w-10 h-10" />
-                <button
-                    onClick={() => setShowSettings(!showSettings)}
-                    className="relative"
-                >
-                    <img src={SettingsIcon} alt="Settings" className="w-8 h-8" />
-                    {showSettings && (
-                        <div className="absolute bottom-12 left-0 bg-white shadow-lg rounded-xl py-2 px-4 text-sm">
-                            <div>Language</div>
-                            <div>Accessibility</div>
-                            <div>About</div>
-                        </div>
-                    )}
-                </button>
+            <div
+                ref={sidebarRef}
+                className={`transition-all duration-300 bg-[#FFDB33] rounded-r-4xl flex flex-col justify-between items-center py-4 hover:shadow-[0_0_12px_rgba(255,219,51,0.6)] ${sidebarExpanded ? "w-40" : "w-10"
+                    }`}
+                onClick={(e) => {
+                    e.stopPropagation();
+                    setSidebarExpanded(!sidebarExpanded);
+                }}
+            >
             </div>
 
             {/* Middle Section */}
-            <div className="flex-grow px-8 py-6 flex flex-col h-full">
-                <h1 className="text-3xl font-black leading-none">Stats</h1>
-                <p className="text-sm font-semibold mt-[-4px]">Manage your stats!</p>
+            <div className="flex-grow px-8 py-6">
+                <div className="flex items-center">
+                    <img src={NimbusCloud} alt="Nimbus Cloud" className="w-11 h-11 mr-2" />
+                    <div>
+                        <h1 className="text-3xl font-black leading-none">Stats</h1>
+                        <p className="text-sm font-bold mt-[-4px]">Manage your stats!</p>
+                    </div>
+                </div>
 
                 {/* Stats Section */}
                 <div className="flex mt-6 h-full">
@@ -150,11 +176,7 @@ const Stats = () => {
                     <button className="bg-white rounded-xl p-2 w-10 h-10">
                         <img src={BellIcon} alt="Notifications" className="w-6 h-6" />
                     </button>
-                    <img
-                        src={ProfileIcon}
-                        alt="Profile"
-                        className="w-10 h-10 rounded-full"
-                    />
+                    <img src={ProfileIcon} alt="Profile" className="w-10 h-10 rounded-full" />
                 </div>
 
                 {/* Search Bar */}
@@ -174,9 +196,7 @@ const Stats = () => {
             {/* Modal */}
             {showModal && (
                 <div className="fixed inset-0 bg-white bg-opacity-40 backdrop-blur-sm flex items-center justify-center z-50">
-                    <div
-                        className="bg-white rounded-xl p-6 w-96 transform transition-transform duration-300 animate-zoomIn"
-                    >
+                    <div className="bg-white rounded-xl p-6 w-96 transform transition-transform duration-300 animate-zoomIn">
                         {!selectedStat ? (
                             <>
                                 <h2 className="text-xl font-black">Select a Main Stat</h2>
@@ -185,7 +205,7 @@ const Stats = () => {
                                         <button
                                             key={index}
                                             onClick={() => setSelectedStat(stat.name)}
-                                            className={`w-full p-3 rounded-xl font-semibold text-left ${selectedStat === stat.name
+                                            className={`w-full p-3 rounded-xl font-bold text-left ${selectedStat === stat.name
                                                 ? "bg-[#FFDB33]"
                                                 : "bg-gray-100 hover:bg-[#FFDB33]"
                                                 }`}
@@ -213,13 +233,15 @@ const Stats = () => {
                             </>
                         ) : (
                             <>
-                                <h2 className="text-xl font-black">{questions[selectedStat][currentQuestionIndex]}</h2>
+                                <h2 className="text-xl font-black">
+                                    {questions[selectedStat][currentQuestionIndex]}
+                                </h2>
                                 <div className="mt-4 space-y-2">
                                     {levels.map((level, index) => (
                                         <button
                                             key={index}
                                             onClick={() => handleAnswer(index)}
-                                            className={`w-full p-3 rounded-xl font-semibold text-left ${selectedLevel === index * 20
+                                            className={`w-full p-3 rounded-xl font-bold text-left ${selectedLevel === index * 20
                                                 ? "bg-[#FFDB33]"
                                                 : "bg-gray-100 hover:bg-[#FFDB33]"
                                                 }`}

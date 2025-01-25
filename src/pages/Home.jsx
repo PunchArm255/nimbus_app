@@ -1,6 +1,6 @@
-import React, { useState } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
-import NimbusLogo from "../assets/cloud.svg";
+import NimbusCloud from "../assets/cloud2.svg";
 import SettingsIcon from "../assets/settings.svg";
 import ProfileIcon from "../assets/profile.png";
 import StreakIcon from "../assets/streak.svg";
@@ -10,32 +10,54 @@ import BellIcon from "../assets/bell.svg";
 
 const Home = () => {
   const [showSettings, setShowSettings] = useState(false);
+  const [topStats, setTopStats] = useState([]);
+  const [sidebarExpanded, setSidebarExpanded] = useState(false);
+  const sidebarRef = useRef(null);
   const navigate = useNavigate();
+
+  // Close sidebar if click is outside
+  useEffect(() => {
+    function handleClickOutside(e) {
+      if (sidebarRef.current && !sidebarRef.current.contains(e.target)) {
+        setSidebarExpanded(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
+
+  useEffect(() => {
+    const stats = JSON.parse(localStorage.getItem("stats")) || [];
+    const sortedStats = stats.sort((a, b) => b.value - a.value).slice(0, 3);
+    setTopStats(sortedStats);
+  }, []);
 
   return (
     <div className="flex h-screen font-RedHatDisplay text-[#544B3D] bg-[#FAF7EC]">
       {/* Sidebar */}
-      <div className="bg-[#FFDB33] w-20 flex flex-col rounded-r-4xl justify-between items-center py-4">
-        <img src={NimbusLogo} alt="Nimbus Logo" className="w-10 h-10" />
-        <button
-          onClick={() => setShowSettings(!showSettings)}
-          className="relative"
-        >
-          <img src={SettingsIcon} alt="Settings" className="w-8 h-8" />
-          {showSettings && (
-            <div className="absolute bottom-12 left-0 bg-white shadow-lg rounded-xl py-2 px-4 text-sm">
-              <div>Language</div>
-              <div>Accessibility</div>
-              <div>About</div>
-            </div>
-          )}
-        </button>
+      <div
+        ref={sidebarRef}
+        className={`transition-all duration-300 bg-[#FFDB33] rounded-r-4xl flex flex-col justify-between items-center py-4 hover:shadow-[0_0_12px_rgba(255,219,51,0.6)] ${sidebarExpanded ? "w-40" : "w-10"
+          }`}
+        onClick={(e) => {
+          e.stopPropagation();
+          setSidebarExpanded(!sidebarExpanded);
+        }}
+      >
+        {/* Add content here if needed */}
       </div>
 
       {/* Middle Section */}
       <div className="flex-grow px-8 py-6">
-        <h1 className="text-3xl font-black leading-none">Dashboard</h1>
-        <p className="text-sm font-semibold mt-[-4px]">Good morning, Mohammed!</p>
+        <div className="flex items-center">
+          <img src={NimbusCloud} alt="Nimbus Cloud" className="w-11 h-11 mr-2" />
+          <div>
+            <h1 className="text-3xl font-black leading-none">Dashboard</h1>
+            <p className="text-sm font-bold mt-[-4px]">Good morning, Mohammed!</p>
+          </div>
+        </div>
 
         {/* Stats Section */}
         <div className="flex mt-6">
@@ -54,35 +76,23 @@ const Home = () => {
             </div>
 
             <div className="mt-3 space-y-3">
-              <div>
-                <div className="flex justify-between font-black text-lg mb-1">
-                  <span>Social</span>
-                  <span>100%</span>
+              {topStats.map((stat, index) => (
+                <div key={index}>
+                  <div className="flex justify-between font-black text-lg mb-1">
+                    <span>{stat.name}</span>
+                    <span>{stat.value}%</span>
+                  </div>
+                  <div className="w-full bg-gray-200 rounded-full h-2">
+                    <div
+                      className="bg-[#FFDB33] h-2 rounded-full"
+                      style={{ width: `${stat.value}%` }}
+                    ></div>
+                  </div>
                 </div>
-                <div className="w-full bg-gray-200 rounded-full h-2">
-                  <div className="bg-[#FFDB33] h-2 rounded-full" style={{ width: "100%" }}></div>
-                </div>
-              </div>
-              <div>
-                <div className="flex justify-between font-black text-lg mb-1">
-                  <span>Physical</span>
-                  <span>100%</span>
-                </div>
-                <div className="w-full bg-gray-200 rounded-full h-2">
-                  <div className="bg-[#FFDB33] h-2 rounded-full" style={{ width: "100%" }}></div>
-                </div>
-              </div>
-              <div>
-                <div className="flex justify-between font-black text-lg mb-1">
-                  <span>Lifestyle</span>
-                  <span>100%</span>
-                </div>
-                <div className="w-full bg-gray-200 rounded-full h-2">
-                  <div className="bg-[#FFDB33] h-2 rounded-full" style={{ width: "100%" }}></div>
-                </div>
-              </div>
+              ))}
             </div>
           </div>
+
           <div className="ml-6 flex flex-col justify-between">
             <div className="bg-white rounded-xl p-4 text-xl flex flex-col items-center font-black w-30 h-30">
               <img src={StreakIcon} alt="Streak" className="w-15 h-15" />
@@ -95,7 +105,6 @@ const Home = () => {
           </div>
         </div>
 
-
         {/* Activity Box */}
         <div className="bg-white rounded-xl p-6 mt-6 font-black text-xl">Activity</div>
       </div>
@@ -106,15 +115,11 @@ const Home = () => {
           <button className="bg-white rounded-xl p-2 w-10 h-10">
             <img src={BellIcon} alt="Notifications" className="w-6 h-6" />
           </button>
-          <img
-            src={ProfileIcon}
-            alt="Profile"
-            className="w-10 h-10 rounded-full"
-          />
+          <img src={ProfileIcon} alt="Profile" className="w-10 h-10 rounded-full" />
         </div>
 
         {/* Search Bar */}
-        <div className="mt-6 flex items-center bg-[white] rounded-xl px-4 py-2 h-11">
+        <div className="mt-6 flex items-center bg-white rounded-xl px-4 py-2 h-11">
           <img src={SearchIcon} alt="Search" className="w-5 h-5 mr-2" />
           <input
             type="text"

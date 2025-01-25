@@ -1,52 +1,58 @@
-import React from "react";
+import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import Logo from "../assets/logo.svg";
+import logo from "../assets/logo.svg";
 
-export default function SignIn() {
+function SignIn() {
   const navigate = useNavigate();
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+
+  const handleSignIn = () => {
+    document.body.style.transition = "background-color 0.5s ease";
+    document.body.style.backgroundColor = "#FAF7EC";
+    setTimeout(() => navigate("/home"), 500);
+  };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-[#FFDB4D]">
-      <div className="p-8 bg-[#FFF8DE] shadow-md shadow-[#FFF8DE] rounded-3xl max-w-md w-full">
-      <img src={Logo} alt="Nimbus Logo" className="w-50 h-50" />
-        <h1 className="text-2xl font-bold text-center mb-4">Sign In</h1>
-        <form>
-          <div className="mb-4">
-            <label className="block text-sm font-medium text-gray-700" htmlFor="email">
-              Email
-            </label>
-            <input
-              type="email"
-              id="email"
-              className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
-              placeholder="Enter your email"
-            />
-          </div>
-          <div className="mb-4">
-            <label className="block text-sm font-medium text-gray-700" htmlFor="password">
-              Password
-            </label>
-            <input
-              type="password"
-              id="password"
-              className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
-              placeholder="Enter your password"
-            />
-          </div>
-          <button
-            type="submit"
-            className="w-full py-2 px-4 bg-[#FFDB4D] text-white rounded-md hover:bg-[#FFEA96]"
-          >
-            Sign In
-          </button>
-        </form>
+    <div className="h-screen bg-[#FAF7EC] flex flex-col justify-center items-center font-['Red_Hat_Display'] text-[#544B3D]">
+      <img src={logo} alt="Nimbus Logo" className="w-100 h-19 mb-8" />
+      <div className="bg-white p-9 rounded-3xl w-80">
+        <div className="mb-4">
+          <label className="block font-bold mb-1">Email</label>
+          <input
+            type="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            className="w-full bg-[#FAF7EC] font-semibold rounded-xl py-2 px-4 outline-none"
+          />
+        </div>
+        <div className="mb-6">
+          <label className="block font-bold mb-1">Password</label>
+          <input
+            type="password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            className="w-full bg-[#FAF7EC] font-semibold rounded-xl py-2 px-4 outline-none"
+          />
+        </div>
         <button
-          className="mt-4 w-full py-2 px-4 bg-gray-200 text-gray-800 rounded-md hover:bg-gray-300"
-          onClick={() => navigate("/home")}
+          onClick={handleSignIn}
+          className="w-full bg-[#FFDB4D] rounded-xl py-2 font-bold"
         >
-          Continue as Guest
+          Sign In
         </button>
+        <p className="text-center mt-4 font-bold">
+          Don’t have an account?{' '}
+          <span
+            onClick={() => navigate("/signup")}
+            className="text-[#FFDB4D] font-bold cursor-pointer"
+          >
+            Sign Up
+          </span>
+        </p>
       </div>
     </div>
   );
 }
+
+export default SignIn;
