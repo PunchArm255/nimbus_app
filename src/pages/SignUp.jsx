@@ -57,7 +57,7 @@ function SignUp() {
         </div>
         <button
           onClick={handleSignUp}
-          className="w-full bg-[#FFDB4D] font-bold rounded-xl py-2 font-bold"
+          className="w-full bg-[#FFDB4D] font-bold rounded-xl py-2"
         >
           Sign Up
         </button>
