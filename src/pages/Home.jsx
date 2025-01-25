@@ -2,11 +2,12 @@ import React, { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import NimbusCloud from "../assets/cloud2.svg";
 import SettingsIcon from "../assets/settings.svg";
-import ProfileIcon from "../assets/profile.png";
 import StreakIcon from "../assets/streak.svg";
 import BadgeIcon from "../assets/badge.svg";
 import SearchIcon from "../assets/search.svg";
 import BellIcon from "../assets/bell.svg";
+import Logout from "../assets/logout.svg";
+import { useUser } from "../lib/context/user";
 
 const Home = () => {
   const [showSettings, setShowSettings] = useState(false);
@@ -14,6 +15,7 @@ const Home = () => {
   const [sidebarExpanded, setSidebarExpanded] = useState(false);
   const sidebarRef = useRef(null);
   const navigate = useNavigate();
+  const { current, logout } = useUser();
 
   // Close sidebar if click is outside
   useEffect(() => {
@@ -28,11 +30,18 @@ const Home = () => {
     };
   }, []);
 
+  // Load stats from localStorage
   useEffect(() => {
     const stats = JSON.parse(localStorage.getItem("stats")) || [];
     const sortedStats = stats.sort((a, b) => b.value - a.value).slice(0, 3);
     setTopStats(sortedStats);
   }, []);
+
+  // Handle logout
+  const handleLogout = async () => {
+    await logout();
+    navigate("/");
+  };
 
   return (
     <div className="flex h-screen font-RedHatDisplay text-[#544B3D] bg-[#FAF7EC]">
@@ -55,7 +64,9 @@ const Home = () => {
           <img src={NimbusCloud} alt="Nimbus Cloud" className="w-11 h-11 mr-2" />
           <div>
             <h1 className="text-3xl font-black leading-none">Dashboard</h1>
-            <p className="text-sm font-bold mt-[-4px]">Good morning, Mohammed!</p>
+            <p className="text-sm font-bold mt-[-4px]">
+              Good morning, {current?.name || "User"}! {/* Fetch name from Auth */}
+            </p>
           </div>
         </div>
 
@@ -64,7 +75,9 @@ const Home = () => {
           <div className="flex-grow bg-white rounded-xl p-6">
             <div className="flex justify-between items-center">
               <div>
-                <div className="font-black text-2xl leading-none">PunchArm255</div>
+                <div className="font-black text-2xl leading-none">
+                  {current?.name || "Username"} {/* Fetch name from Auth */}
+                </div>
                 <div className="font-semibold text-lg mt-[-4px]">Newbie</div>
               </div>
               <button
@@ -115,7 +128,22 @@ const Home = () => {
           <button className="bg-white rounded-xl p-2 w-10 h-10">
             <img src={BellIcon} alt="Notifications" className="w-6 h-6" />
           </button>
-          <img src={ProfileIcon} alt="Profile" className="w-10 h-10 rounded-full" />
+          <button
+            onClick={handleLogout}
+            className="bg-white rounded-xl p-2 w-10 h-10"
+          >
+            <img src={Logout} alt="Logout" className="w-6 h-6" />
+          </button>
+          <button className="bg-white rounded-xl p-2 w-10 h-10 border-2 border-[#FFDB33]">
+            {current && (
+              <img
+                src={`https://cloud.appwrite.io/v1/avatars/initials?name=${current?.name || "User"
+                  }&width=40&height=40`}
+                alt="Profile"
+                className="w-6 h-6 rounded-full"
+              />
+            )}
+          </button>
         </div>
 
         {/* Search Bar */}
@@ -129,7 +157,9 @@ const Home = () => {
         </div>
 
         {/* Friends Box */}
-        <div className="bg-white rounded-xl flex-grow p-6 mt-4 font-black text-xl">Friends</div>
+        <div className="bg-white rounded-xl flex-grow p-6 mt-4 font-black text-xl">
+          Friends
+        </div>
       </div>
     </div>
   );

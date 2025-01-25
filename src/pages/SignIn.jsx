@@ -1,22 +1,30 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import logo from "../assets/logo.svg";
+import { useUser } from "../lib/context/user";
 
 function SignIn() {
   const navigate = useNavigate();
+  const { login } = useUser();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
 
-  const handleSignIn = () => {
-    document.body.style.transition = "background-color 0.5s ease";
-    document.body.style.backgroundColor = "#FAF7EC";
-    setTimeout(() => navigate("/home"), 500);
+  const handleSignIn = async (e) => {
+    e.preventDefault();
+    try {
+      await login(email, password);
+      navigate("/home"); // Redirect to home after login
+    } catch (err) {
+      setError(err.message);
+    }
   };
 
   return (
     <div className="h-screen bg-[#FAF7EC] flex flex-col justify-center items-center font-['Red_Hat_Display'] text-[#544B3D]">
       <img src={logo} alt="Nimbus Logo" className="w-100 h-19 mb-8" />
       <div className="bg-white p-9 rounded-3xl w-80">
+        {error && <p className="text-red-500 text-center mb-4">{error}</p>}
         <div className="mb-4">
           <label className="block font-bold mb-1">Email</label>
           <input
