@@ -5,12 +5,14 @@ import { toPng } from "html-to-image";
 import Logo from "../assets/logo.svg"; // Updated logo import
 import PostBackground from "../assets/post_background.png";
 import DarkPostBackground from "../assets/post_background_dark.png";
+import { useNavigate } from "react-router-dom";
 
 const PostPreview = () => {
     const { current, fetchStats } = useUser();
     const { isDarkMode } = useTheme();
     const postRef = useRef(null);
     const [stats, setStats] = useState([]);
+    const navigate = useNavigate();
 
     // Fetch stats for the logged-in user
     useEffect(() => {
@@ -113,14 +115,22 @@ const PostPreview = () => {
                 </p>
             </div>
 
-            {/* Export Button */}
-            <button
-                onClick={handleExport}
-                className={`mt-8 bg-[#FFDB33] font-black text-lg text-[#544B3D] rounded-xl px-6 py-3 cursor-pointer ${isDarkMode ? "shadow-black/25" : "shadow-amber-100"
-                    } shadow-lg`}
-            >
-                Export as PNG
-            </button>
+            {/* Export and Return Buttons */}
+            <div className="mt-8 flex gap-4">
+                <button
+                    onClick={handleExport}
+                    className={`bg-[#FFDB33] font-black text-lg text-[#544B3D] rounded-xl px-6 py-3 cursor-pointer ${isDarkMode ? "shadow-black/25" : "shadow-amber-100"
+                        } shadow-lg`}
+                >
+                    Export as PNG
+                </button>
+                <button
+                    onClick={() => navigate("/home")}
+                    className="bg-[#F3E6B2] font-black border-2 border-[#FFDB33] text-lg text-[#544B3D] rounded-xl px-6 py-3 cursor-pointer"
+                >
+                    Return to Home
+                </button>
+            </div>
         </div>
     );
 };
