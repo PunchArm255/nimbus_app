@@ -53,14 +53,14 @@ function SignIn() {
             animate={{ y: 0, opacity: 1 }}
             transition={{ delay: 0.4, duration: 0.5 }}
           >
-            {error && <p className="text-red-500 text-center mb-4">{error}</p>}
+            {error && <p className="text-red-500 font-semibold text-center mb-4">{error}</p>}
             <div className="mb-4">
               <label className="block font-bold mb-1">Email</label>
               <input
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="w-full bg-[#FAF7EC] font-semibold rounded-xl py-2 px-4 outline-none"
+                className="w-full bg-[#FAF7EC] font-bold rounded-xl py-2 px-4 outline-none"
               />
             </div>
             <div className="mb-6">
@@ -74,7 +74,7 @@ function SignIn() {
             </div>
             <motion.button
               onClick={handleSignIn}
-              className="w-full bg-[#FFDB4D] rounded-xl py-2 font-bold"
+              className="w-full bg-[#FFDB4D] rounded-xl py-2 font-bold cursor-pointer"
               whileHover={{ scale: 1.05 }} // Hover animation (no color change)
               whileTap={{ scale: 0.95 }} // Click animation
               transition={{ type: "spring", stiffness: 300 }} // Faster hover animation
