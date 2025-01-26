@@ -17,6 +17,7 @@ import Credit from "../assets/credit.svg";
 import { useUser } from "../lib/context/user";
 import { Query } from "appwrite";
 import { useTheme } from "../lib/context/theme";
+import PostPreview from "./PostPreview";
 
 const Home = () => {
   const [showSettings, setShowSettings] = useState(false);
@@ -43,6 +44,8 @@ const Home = () => {
   const { current, logout, fetchStats, fetchFriends, updateFriends, databases } = useUser();
   const controls = useAnimation();
   const { isDarkMode, toggleDarkMode } = useTheme();
+
+  const previewRef = useRef(null);
 
   useEffect(() => {
     async function loadTopStats() {
@@ -165,12 +168,11 @@ const Home = () => {
     }
   };
 
-  // Instant export function
   const handleInstantExport = async () => {
-    if (exportRef.current) {
+    if (previewRef.current) {
       try {
-        const scale = 1080 / exportRef.current.offsetWidth;
-        const dataUrl = await toPng(exportRef.current, {
+        const scale = 1080 / previewRef.current.offsetWidth;
+        const dataUrl = await toPng(previewRef.current, {
           width: 1080,
           height: 1080,
           quality: 1,
@@ -295,7 +297,7 @@ const Home = () => {
                         <span>{stat.name}</span>
                         <span>{stat.value}%</span>
                       </div>
-                      <div className={`w-full ${isDarkMode ? 'bg-[#1A1A1A]' : 'bg-gray-200'} rounded-full h-2 overflow-hidden`}>
+                      <div className={`w-full transition-colors duration-300 ${isDarkMode ? 'bg-[#1A1A1A]' : 'bg-gray-200'} rounded-full h-2 overflow-hidden`}>
                         <motion.div
                           className="bg-[#FFDB33] h-2 rounded-full"
                           style={{ width: `${stat.value}%` }}
@@ -343,8 +345,7 @@ const Home = () => {
             </div>
 
             {/* Export Box */}
-            <div ref={exportRef} className={`flex-grow transition-colors duration-300 ${isDarkMode ? "bg-[#2F2F2F]" : "bg-white"
-              } rounded-xl p-6 mt-6`}>
+            <div className={`flex-grow transition-colors duration-300 ${isDarkMode ? "bg-[#2F2F2F]" : "bg-white"} rounded-xl p-6 mt-6`}>
               <div className="flex justify-between items-center">
                 <div className="font-black text-2xl leading-none">Share with friends</div>
                 <div className="flex space-x-4">
@@ -364,6 +365,13 @@ const Home = () => {
                   >
                     Export Post
                   </motion.button>
+                </div>
+              </div>
+
+              {/* Hidden Preview Content for Export */}
+              <div style={{ position: 'absolute', left: '-9999px', top: '-9999px' }}>
+                <div ref={previewRef}>
+                  <PostPreview />
                 </div>
               </div>
             </div>

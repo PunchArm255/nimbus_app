@@ -324,7 +324,7 @@ const Stats = () => {
                                             <span>{stat.name}</span>
                                             <span>{stat.value}%</span>
                                         </div>
-                                        <div className={`w-full ${isDarkMode ? 'bg-[#1A1A1A]' : 'bg-gray-200'} rounded-full h-2`}>
+                                        <div className={`w-full transition-colors duration-300 ${isDarkMode ? 'bg-[#1A1A1A]' : 'bg-gray-200'} rounded-full h-2`}>
                                             <motion.div
                                                 className="bg-[#FFDB33] h-2 rounded-full"
                                                 style={{ width: `${stat.value}%` }}
