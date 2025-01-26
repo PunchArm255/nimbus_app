@@ -66,7 +66,7 @@ const PostPreview = () => {
                 <h1 className="text-6xl font-black text-[#544B3D] mb-8">Your IRL Stats:</h1>
 
                 {/* Stats Box */}
-                <div className="bg-white rounded-3xl p-12 w-[800px] h-[600px] shadow-lg">
+                <div className="bg-white rounded-4xl p-12 w-[800px] h-[600px]">
                     <div className="flex justify-between items-center mb-6">
                         <div>
                             <div className="font-black text-6xl text-[#544B3D] leading-none">
