@@ -8,8 +8,15 @@ import BadgeIcon from "../assets/badge.svg";
 import SearchIcon from "../assets/search.svg";
 import BellIcon from "../assets/bell.svg";
 import Logout from "../assets/logout.svg";
+import darkStreak from "../assets/darkStreak.svg";
+import darkBadge from "../assets/darkBadge.svg";
+import darkSearch from "../assets/darkSearch.svg";
+import darkBell from "../assets/darkBell.svg";
+import darkLogout from "../assets/darkLogout.svg";
+import Credit from "../assets/credit.svg";
 import { useUser } from "../lib/context/user";
 import { Query } from "appwrite";
+import { useTheme } from "../lib/context/theme";
 
 const Home = () => {
   const [showSettings, setShowSettings] = useState(false);
@@ -27,11 +34,15 @@ const Home = () => {
   const [isExiting, setIsExiting] = useState(false);
   const [exitRoute, setExitRoute] = useState(null);
   const exportRef = useRef(null);
+  const [showNotifications, setShowNotifications] = useState(false);
+  const [showProfile, setShowProfile] = useState(false);
+  const [statsFilter, setStatsFilter] = useState('top');
 
   const sidebarRef = useRef(null);
   const navigate = useNavigate();
   const { current, logout, fetchStats, fetchFriends, updateFriends, databases } = useUser();
   const controls = useAnimation();
+  const { isDarkMode, toggleDarkMode } = useTheme();
 
   useEffect(() => {
     async function loadTopStats() {
@@ -39,8 +50,17 @@ const Home = () => {
         const userStats = await fetchStats(current.$id);
         if (userStats) {
           const parsedStats = JSON.parse(userStats);
-          const sortedStats = parsedStats.sort((a, b) => b.value - a.value).slice(0, 3);
-          setTopStats(sortedStats);
+          let filteredStats;
+
+          if (statsFilter === 'top') {
+            filteredStats = parsedStats.sort((a, b) => b.value - a.value).slice(0, 3);
+          } else {
+            filteredStats = parsedStats
+              .sort((a, b) => (b.lastModified || 0) - (a.lastModified || 0))
+              .slice(0, 3);
+          }
+
+          setTopStats(filteredStats);
           controls.start({
             width: "100%",
             transition: { duration: 1, ease: "easeInOut" },
@@ -49,7 +69,7 @@ const Home = () => {
       }
     }
     loadTopStats();
-  }, [current, fetchStats, controls]);
+  }, [current, fetchStats, controls, statsFilter]);
 
   useEffect(() => {
     async function loadFriends() {
@@ -178,8 +198,11 @@ const Home = () => {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          transition={{ duration: 0.5 }}
-          className="flex h-screen font-RedHatDisplay text-[#544B3D] bg-[#FAF7EC] overflow-hidden"
+          transition={{ duration: 0.3 }}
+          className={`flex h-screen font-RedHatDisplay transition-all duration-300 ${isDarkMode
+            ? "text-[#F4E5AF] bg-[#1A1A1A]"
+            : "text-[#544B3D] bg-[#FAF7EC]"
+            } overflow-hidden`}
         >
           {/* Sidebar */}
           <motion.div
@@ -187,13 +210,26 @@ const Home = () => {
             initial={{ x: -100, opacity: 0 }}
             animate={{ x: 0, opacity: 1 }}
             transition={{ delay: 0.2, duration: 0.5 }}
-            className={`transition-all duration-300 bg-[#FFDB33] rounded-r-4xl flex flex-col justify-between items-center py-4 hover:shadow-[0_0_12px_rgba(255,219,51,0.6)] ${sidebarExpanded ? "w-40" : "w-10"
-              }`}
+            className={`transition-all duration-300 bg-[#FFDB33] rounded-r-4xl flex flex-col justify-center items-center py-4 hover:shadow-[0_0_12px_rgba(255,219,51,0.6)] ${sidebarExpanded ? "w-40" : "w-9"}`}
             onClick={(e) => {
               e.stopPropagation();
               setSidebarExpanded(!sidebarExpanded);
             }}
-          />
+          >
+            <AnimatePresence>
+              {sidebarExpanded && (
+                <motion.img
+                  src={Credit}
+                  alt="Credit"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  transition={{ duration: 0.2 }}
+                  className="w-30 h-30"
+                />
+              )}
+            </AnimatePresence>
+          </motion.div>
 
           {/* Middle Section */}
           <motion.div
@@ -203,33 +239,53 @@ const Home = () => {
             className="flex-grow px-8 py-6"
           >
             <div className="flex items-center">
-              <img src={NimbusCloud} alt="Nimbus Cloud" className="w-11 h-11 mr-2" />
+              <motion.img
+                src={NimbusCloud}
+                alt="Nimbus Cloud"
+                className="w-11 h-11 mr-2 cursor-pointer"
+                whileHover={{
+                  scale: 1.1,
+                  transition: { duration: 0.3 }
+                }}
+                onClick={toggleDarkMode}
+              />
               <div>
                 <h1 className="text-3xl font-black leading-none">Dashboard</h1>
                 <p className="text-sm font-bold mt-[-4px]">
-                  Good morning, {current?.name || "User"}!
+                  Welcome back, {current?.name || "User"}!
                 </p>
               </div>
             </div>
 
             {/* Stats Section */}
             <div className="flex mt-6">
-              <div className="flex-grow bg-white rounded-xl p-6">
+              <div className={`flex-grow transition-colors duration-300 ${isDarkMode ? "bg-[#2F2F2F]" : "bg-white"
+                } rounded-xl p-6`}>
                 <div className="flex justify-between items-center">
                   <div>
                     <div className="font-black text-2xl leading-none">
                       {current?.name || "Username"}
                     </div>
-                    <div className="font-semibold text-lg mt-[-4px]">Newbie</div>
+                    <div className="font-semibold text-lg mt-[-4px]">Explorer</div>
                   </div>
-                  <motion.button
-                    onClick={() => handleNavigation("/Stats")}
-                    className="bg-[#FFDB33] font-black text-sm rounded-xl px-4 py-2 cursor-pointer"
-                    whileHover={{ scale: 1.05 }}
-                    whileTap={{ scale: 0.95 }}
-                  >
-                    View All
-                  </motion.button>
+                  <div className="flex gap-2">
+                    <motion.button
+                      onClick={() => setStatsFilter(statsFilter === 'top' ? 'recent' : 'top')}
+                      className={`${isDarkMode ? 'shadow-black/25' : 'shadow-amber-100'} bg-[#F3E6B2] text-[#544B3D] shadow-lg font-black text-sm rounded-xl px-4 py-2 cursor-pointer`}
+                      whileHover={{ scale: 1.05 }}
+                      whileTap={{ scale: 0.95 }}
+                    >
+                      {statsFilter === 'top' ? 'Top 3 Stats' : 'Recent'}
+                    </motion.button>
+                    <motion.button
+                      onClick={() => handleNavigation("/Stats")}
+                      className={`${isDarkMode ? 'shadow-black/25' : 'shadow-amber-100'} bg-[#FFDB33] text-[#544B3D] shadow-lg font-black text-sm rounded-xl px-4 py-2 cursor-pointer`}
+                      whileHover={{ scale: 1.05 }}
+                      whileTap={{ scale: 0.95 }}
+                    >
+                      View All
+                    </motion.button>
+                  </div>
                 </div>
 
                 <div className="mt-3 space-y-3">
@@ -239,7 +295,7 @@ const Home = () => {
                         <span>{stat.name}</span>
                         <span>{stat.value}%</span>
                       </div>
-                      <div className="w-full bg-gray-200 rounded-full h-2 overflow-hidden">
+                      <div className={`w-full ${isDarkMode ? 'bg-[#1A1A1A]' : 'bg-gray-200'} rounded-full h-2 overflow-hidden`}>
                         <motion.div
                           className="bg-[#FFDB33] h-2 rounded-full"
                           style={{ width: `${stat.value}%` }}
@@ -256,36 +312,45 @@ const Home = () => {
               <div className="ml-6 flex flex-col justify-between">
                 <motion.button
                   onClick={() => setShowStreakModal(true)}
-                  className="bg-white rounded-xl p-4 text-xl flex flex-col items-center font-black w-30 h-30 cursor-pointer"
+                  className={`transition-colors duration-300 ${isDarkMode ? "bg-[#2F2F2F]" : "bg-white"
+                    } rounded-xl p-4 text-xl flex flex-col items-center font-black w-30 h-30 cursor-pointer`}
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
                 >
-                  <img src={StreakIcon} alt="Streak" className="w-15 h-15" />
+                  <img
+                    src={isDarkMode ? darkStreak : StreakIcon}
+                    alt="Streak"
+                    className="w-15 h-15 transition-all duration-300"
+                  />
                   <span>Streak</span>
                 </motion.button>
 
                 <motion.button
                   onClick={() => setShowBadgesModal(true)}
-                  className="bg-white rounded-xl p-4 text-xl flex flex-col items-center mt-4 font-black w-30 h-30 cursor-pointer"
+                  className={`transition-colors duration-300 ${isDarkMode ? "bg-[#2F2F2F]" : "bg-white"
+                    } rounded-xl p-4 text-xl flex flex-col items-center mt-4 font-black w-30 h-30 cursor-pointer`}
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
                 >
-                  <img src={BadgeIcon} alt="Badge" className="w-15 h-15" />
+                  <img
+                    src={isDarkMode ? darkBadge : BadgeIcon}
+                    alt="Badge"
+                    className="w-15 h-15 transition-all duration-300"
+                  />
                   <span>Badges</span>
                 </motion.button>
               </div>
             </div>
 
-
-
-            {/* Modified Export Box */}
-            <div ref={exportRef} className="flex-grow bg-white rounded-xl p-6 mt-6">
+            {/* Export Box */}
+            <div ref={exportRef} className={`flex-grow transition-colors duration-300 ${isDarkMode ? "bg-[#2F2F2F]" : "bg-white"
+              } rounded-xl p-6 mt-6`}>
               <div className="flex justify-between items-center">
                 <div className="font-black text-2xl leading-none">Share with friends</div>
                 <div className="flex space-x-4">
                   <motion.button
                     onClick={() => navigate("/PostPreview")}
-                    className="bg-[#FFDB33] font-black text-sm rounded-xl px-4 py-2 cursor-pointer"
+                    className={`bg-[#FFDB33] text-[#544B3D] ${isDarkMode ? 'shadow-black/25' : 'shadow-amber-100'} shadow-lg font-black text-sm rounded-xl px-4 py-2 cursor-pointer`}
                     whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.95 }}
                   >
@@ -293,7 +358,7 @@ const Home = () => {
                   </motion.button>
                   <motion.button
                     onClick={handleInstantExport}
-                    className="bg-[#FFDB33] font-black text-sm rounded-xl px-4 py-2 cursor-pointer"
+                    className={`bg-[#FFDB33] text-[#544B3D] ${isDarkMode ? 'shadow-black/25' : 'shadow-amber-100'} shadow-lg font-black text-sm rounded-xl px-4 py-2 cursor-pointer`}
                     whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.95 }}
                   >
@@ -302,68 +367,80 @@ const Home = () => {
                 </div>
               </div>
             </div>
-            <motion.div
-              initial={{ y: 50, opacity: 0 }}
-              animate={{ y: 0, opacity: 1 }}
-              transition={{ delay: 0.6, duration: 0.5 }}
-              className="bg-white rounded-xl p-6 mt-6 font-black text-2xl"
-            >
-              Activity
-            </motion.div>
+
           </motion.div>
-
-
 
           {/* Right Section */}
           <motion.div
             initial={{ x: 100, opacity: 0 }}
             animate={{ x: 0, opacity: 1 }}
             transition={{ delay: 0.6, duration: 0.5 }}
-            className="w-80 border-l-2 border-[#D3CFC3] px-6 py-6 flex flex-col"
+            className={`w-80 border-l-2 transition-colors duration-300 ${isDarkMode
+              ? "border-[#2F2F2F]"
+              : "border-[#D3CFC3]"
+              } px-6 py-6 flex flex-col`}
           >
             <div className="flex justify-between items-center">
               <motion.button
-                className="bg-white rounded-xl p-2 w-10 h-10 cursor-pointer"
-                whileHover={{ scale: 1.1 }}
-                whileTap={{ scale: 0.95 }}
-              >
-                <img src={BellIcon} alt="Notifications" className="w-6 h-6" />
-              </motion.button>
-              <motion.button
-                onClick={handleLogout}
-                className="bg-white rounded-xl p-2 w-10 h-10 cursor-pointer"
-                whileHover={{ scale: 1.1 }}
-                whileTap={{ scale: 0.95 }}
-              >
-                <img src={Logout} alt="Logout" className="w-6 h-6" />
-              </motion.button>
-              <motion.button
-                className="bg-white rounded-xl p-2 w-10 h-10 border-2 border-[#FFDB33] cursor-pointer"
+                onClick={() => setShowProfile(true)}
+                className="bg-white rounded-xl w-10 h-10 cursor-pointer"
                 whileHover={{ scale: 1.1 }}
                 whileTap={{ scale: 0.95 }}
               >
                 {current && (
                   <img
-                    src={`https://cloud.appwrite.io/v1/avatars/initials?name=${current?.name || "User"
-                      }&width=40&height=40`}
+                    src={`https://cloud.appwrite.io/v1/avatars/initials?name=${current?.name || "User"}&width=40&height=40`}
                     alt="Profile"
-                    className="w-6 h-6 rounded-full"
+                    className="w-10 h-10 border-[#FFDB33] border-2 rounded-xl"
                   />
                 )}
               </motion.button>
+
+              <div className="flex gap-2">
+                <motion.button
+                  onClick={() => setShowNotifications(true)}
+                  className={`transition-colors duration-300 ${isDarkMode ? "bg-[#2F2F2F]" : "bg-white"} rounded-xl p-2 w-10 h-10 cursor-pointer`}
+                  whileHover={{ scale: 1.1 }}
+                  whileTap={{ scale: 0.95 }}
+                >
+                  <img
+                    src={isDarkMode ? darkBell : BellIcon}
+                    alt="Notifications"
+                    className="w-6 h-6 transition-all duration-300"
+                  />
+                </motion.button>
+                <motion.button
+                  onClick={handleLogout}
+                  className={`transition-colors duration-300 ${isDarkMode ? "bg-[#2F2F2F]" : "bg-white"} rounded-xl p-2 w-10 h-10 cursor-pointer`}
+                  whileHover={{ scale: 1.1 }}
+                  whileTap={{ scale: 0.95 }}
+                >
+                  <img
+                    src={isDarkMode ? darkLogout : Logout}
+                    alt="Logout"
+                    className="w-6 h-6 transition-all duration-300"
+                  />
+                </motion.button>
+              </div>
             </div>
 
             <motion.div
               initial={{ y: 50, opacity: 0 }}
               animate={{ y: 0, opacity: 1 }}
               transition={{ delay: 0.7, duration: 0.5 }}
-              className="mt-6 flex items-center bg-white rounded-xl px-4 py-2 h-11"
+              className={`mt-6 flex items-center transition-colors duration-300 ${isDarkMode ? "bg-[#2F2F2F]" : "bg-white"
+                } rounded-xl px-4 py-2 h-11`}
             >
-              <img src={SearchIcon} alt="Search" className="w-5 h-5 mr-2" />
+              <img
+                src={isDarkMode ? darkSearch : SearchIcon}
+                alt="Search"
+                className="w-5 h-5 mr-2 transition-all duration-300"
+              />
               <input
                 type="text"
                 placeholder="Search for friends"
-                className="bg-transparent outline-none flex-grow font-semibold text-sm"
+                className={`bg-transparent outline-none flex-grow font-semibold text-sm ${isDarkMode ? "text-[#F4E5AF] placeholder-[#F4E5AF]/50" : "text-[#544B3D] placeholder-[#544B3D]/50"
+                  }`}
                 value={searchQuery}
                 onChange={(e) => {
                   setSearchQuery(e.target.value);
@@ -377,7 +454,8 @@ const Home = () => {
                 initial={{ y: 50, opacity: 0 }}
                 animate={{ y: 0, opacity: 1 }}
                 transition={{ delay: 0.8, duration: 0.5 }}
-                className="bg-white rounded-xl p-4 mt-4"
+                className={`transition-colors duration-300 ${isDarkMode ? "bg-[#2F2F2F]" : "bg-white"
+                  } rounded-xl p-4 mt-4`}
               >
                 <h2 className="font-black text-lg mb-2">Search Results</h2>
                 {searchResults.length > 0 ? (
@@ -409,7 +487,8 @@ const Home = () => {
               initial={{ y: 50, opacity: 0 }}
               animate={{ y: 0, opacity: 1 }}
               transition={{ delay: 0.9, duration: 0.5 }}
-              className="bg-white rounded-xl flex-grow p-6 mt-4 font-black text-xl"
+              className={`transition-colors duration-300 ${isDarkMode ? "bg-[#2F2F2F]" : "bg-white"
+                } rounded-xl flex-grow p-6 mt-4 font-black text-xl`}
             >
               <h2 className="font-black text-lg mb-2">Friends</h2>
               {friends.length > 0 ? (
@@ -437,19 +516,24 @@ const Home = () => {
             </motion.div>
           </motion.div>
 
+          {/* Streak Modal */}
           <AnimatePresence>
             {showStreakModal && (
               <motion.div
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
-                className="fixed inset-0 bg-white bg-opacity-40 backdrop-blur-sm flex items-center justify-center z-50"
+                className={`fixed inset-0 ${isDarkMode
+                  ? "bg-black bg-opacity-40"
+                  : "bg-white bg-opacity-40"
+                  } backdrop-blur-sm flex items-center justify-center z-50`}
               >
                 <motion.div
                   initial={{ scale: 0.9, opacity: 0 }}
                   animate={{ scale: 1, opacity: 1 }}
                   exit={{ scale: 0.9, opacity: 0 }}
-                  className="bg-white rounded-xl p-6 w-96"
+                  className={`transition-colors duration-300 ${isDarkMode ? "bg-[#2F2F2F]" : "bg-white"
+                    } rounded-xl p-6 w-96`}
                 >
                   <h2 className="text-xl font-black mb-4">Streak</h2>
                   <p className="text-lg">
@@ -457,7 +541,7 @@ const Home = () => {
                   </p>
                   <motion.button
                     onClick={() => setShowStreakModal(false)}
-                    className="mt-4 bg-[#FFDB33] font-black text-sm rounded-xl px-4 py-2 cursor-pointer"
+                    className="mt-4 bg-[#FFDB33] text-[#544B3D] font-black text-sm rounded-xl px-4 py-2 cursor-pointer"
                     whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.95 }}
                   >
@@ -468,19 +552,24 @@ const Home = () => {
             )}
           </AnimatePresence>
 
+          {/* Badges Modal */}
           <AnimatePresence>
             {showBadgesModal && (
               <motion.div
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
-                className="fixed inset-0 bg-white bg-opacity-40 backdrop-blur-sm flex items-center justify-center z-50"
+                className={`fixed inset-0 ${isDarkMode
+                  ? "bg-black bg-opacity-40"
+                  : "bg-white bg-opacity-40"
+                  } backdrop-blur-sm flex items-center justify-center z-50`}
               >
                 <motion.div
                   initial={{ scale: 0.9, opacity: 0 }}
                   animate={{ scale: 1, opacity: 1 }}
                   exit={{ scale: 0.9, opacity: 0 }}
-                  className="bg-white rounded-xl p-6 w-96"
+                  className={`transition-colors duration-300 ${isDarkMode ? "bg-[#2F2F2F]" : "bg-white"
+                    } rounded-xl p-6 w-96`}
                 >
                   <h2 className="text-xl font-black mb-4">Badge List</h2>
                   <div className="space-y-2">
@@ -488,7 +577,8 @@ const Home = () => {
                       (badge, index) => (
                         <motion.div
                           key={index}
-                          className="flex items-center bg-gray-100 rounded-xl p-3 cursor-pointer"
+                          className={`flex items-center ${isDarkMode ? "bg-[#1A1A1A]" : "bg-gray-100"
+                            } rounded-xl p-3 cursor-pointer`}
                           whileHover={{ scale: 1.02 }}
                           whileTap={{ scale: 0.98 }}
                         >
@@ -499,13 +589,61 @@ const Home = () => {
                   </div>
                   <motion.button
                     onClick={() => setShowBadgesModal(false)}
-                    className="mt-4 bg-[#FFDB33] font-black text-sm rounded-xl px-4 py-2 cursor-pointer"
+                    className="mt-4 bg-[#FFDB33] text-[#544B3D] font-black text-sm rounded-xl px-4 py-2 cursor-pointer"
                     whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.95 }}
                   >
                     Close
                   </motion.button>
                 </motion.div>
+              </motion.div>
+            )}
+          </AnimatePresence>
+
+          {/* Profile Modal */}
+          <AnimatePresence>
+            {showProfile && (
+              <motion.div
+                initial={{ opacity: 0, y: -20 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -20 }}
+                className={`absolute top-24 right-72 z-50 ${isDarkMode ? "bg-[#2F2F2F]" : "bg-white"
+                  } rounded-xl p-4 shadow-lg w-64`}
+              >
+                <div className="font-semibold mb-2">Currently signed in as:</div>
+                <div className="font-black">{current?.name || "User"}</div>
+                <motion.button
+                  onClick={() => setShowProfile(false)}
+                  className="mt-4 bg-[#FFDB33] text-[#544B3D] font-black text-sm rounded-xl px-4 py-2 w-full cursor-pointer"
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                >
+                  Close
+                </motion.button>
+              </motion.div>
+            )}
+          </AnimatePresence>
+
+          {/* Notifications Modal */}
+          <AnimatePresence>
+            {showNotifications && (
+              <motion.div
+                initial={{ opacity: 0, y: -20 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -20 }}
+                className={`absolute top-24 right-32 z-50 ${isDarkMode ? "bg-[#2F2F2F]" : "bg-white"
+                  } rounded-xl p-4 shadow-lg w-64`}
+              >
+                <div className="font-black mb-2">Notifications</div>
+                <div className="text-sm opacity-70">No new notifications</div>
+                <motion.button
+                  onClick={() => setShowNotifications(false)}
+                  className="mt-4 bg-[#FFDB33] text-[#544B3D] font-black text-sm rounded-xl px-4 py-2 w-full cursor-pointer"
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                >
+                  Close
+                </motion.button>
               </motion.div>
             )}
           </AnimatePresence>

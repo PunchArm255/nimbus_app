@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion"; // Import Framer Motion
 import logo from "../assets/logo.svg";
 import { useUser } from "../lib/context/user";
+import { useTheme } from "../lib/context/theme"; // Add this import
 
 function SignUp() {
   const navigate = useNavigate();
@@ -12,6 +13,7 @@ function SignUp() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [isExiting, setIsExiting] = React.useState(false); // State to handle exit animation
+  const { isDarkMode } = useTheme(); // Add this hook
 
   const handleSignUp = async (e) => {
     e.preventDefault();
@@ -38,7 +40,10 @@ function SignUp() {
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
           transition={{ duration: 0.5 }}
-          className="h-screen bg-[#FAF7EC] flex flex-col justify-center items-center font-['Red_Hat_Display'] text-[#544B3D]"
+          className={`h-screen ${isDarkMode
+            ? "bg-[#1A1A1A] text-[#F4E5AF]"
+            : "bg-[#FAF7EC] text-[#544B3D]"
+            } flex flex-col justify-center items-center font-['Red_Hat_Display']`}
         >
           <motion.img
             src={logo}
@@ -49,7 +54,8 @@ function SignUp() {
             transition={{ delay: 0.2, duration: 0.5 }}
           />
           <motion.div
-            className="bg-white p-9 rounded-3xl w-80"
+            className={`${isDarkMode ? "bg-[#2F2F2F]" : "bg-white"
+              } p-9 rounded-3xl w-80`}
             initial={{ y: 50, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
             transition={{ delay: 0.4, duration: 0.5 }}
@@ -61,7 +67,7 @@ function SignUp() {
                 type="text"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
-                className="w-full bg-[#FAF7EC] font-bold rounded-xl py-2 px-4 outline-none"
+                className="w-full bg-[#FAF7EC] text-[#544B3D] font-bold rounded-xl py-2 px-4 outline-none"
               />
             </div>
             <div className="mb-4">
@@ -70,7 +76,7 @@ function SignUp() {
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="w-full bg-[#FAF7EC] font-bold rounded-xl py-2 px-4 outline-none"
+                className="w-full bg-[#FAF7EC] text-[#544B3D] font-bold rounded-xl py-2 px-4 outline-none"
               />
             </div>
             <div className="mb-6">
@@ -79,12 +85,12 @@ function SignUp() {
                 type="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="w-full bg-[#FAF7EC] font-bold rounded-xl py-2 px-4 outline-none"
+                className="w-full bg-[#FAF7EC] text-[#544B3D] font-bold rounded-xl py-2 px-4 outline-none"
               />
             </div>
             <motion.button
               onClick={handleSignUp}
-              className="w-full bg-[#FFDB4D] font-bold rounded-xl cursor-pointer py-2"
+              className="w-full bg-[#FFDB4D] text-[#544B3D] rounded-xl cursor-pointer py-2 font-bold"
               whileHover={{ scale: 1.05 }} // Hover animation (no color change)
               whileTap={{ scale: 0.95 }} // Click animation
               transition={{ type: "spring", stiffness: 300 }} // Faster hover animation
@@ -95,7 +101,7 @@ function SignUp() {
               Already have an account?{' '}
               <motion.span
                 onClick={() => handleNavigation("/signin")}
-                className="text-[#FFDB4D] font-bold cursor-pointer"
+                className="text-[#FFDB4D] cursor-pointer font-bold"
                 whileHover={{ scale: 1.05 }} // Hover animation
                 whileTap={{ scale: 0.95 }} // Click animation
               >

@@ -3,11 +3,13 @@ import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion"; // Import Framer Motion
 import NimbusLogo from "../assets/nimbus_light.svg";
 import { useUser } from "../lib/context/user.jsx";
+import { useTheme } from "../lib/context/theme"; // Add this import
 
 function Welcome() {
     const navigate = useNavigate();
     const { current, loading } = useUser();
     const [isExiting, setIsExiting] = React.useState(false); // State to handle exit animation
+    const { isDarkMode } = useTheme(); // Add this hook
 
     useEffect(() => {
         if (!loading && current) {
@@ -32,7 +34,10 @@ function Welcome() {
                     animate={{ opacity: 1 }}
                     exit={{ opacity: 0, backgroundColor: "#FAF7EC" }}
                     transition={{ duration: 0.5 }}
-                    className="h-screen bg-[#FFDB4D] flex flex-col justify-center items-center font-['Red_Hat_Display'] text-[#544B3D]"
+                    className={`h-screen ${isDarkMode
+                        ? "bg-[#1A1A1A] text-[#F4E5AF]"
+                        : "bg-[#FFDB4D] text-[#544B3D]"
+                        } flex flex-col justify-center items-center font-['Red_Hat_Display']`}
                 >
                     <motion.img
                         src={NimbusLogo}
@@ -44,25 +49,25 @@ function Welcome() {
                     />
                     <motion.button
                         onClick={() => handleNavigation("/signin")}
-                        className="mt-8 w-60 bg-[#FFF8DE] rounded-xl cursor-pointer py-3 font-bold text-lg"
+                        className="mt-8 w-60 bg-[#FFF8DE] text-[#544B3D] rounded-xl cursor-pointer py-3 font-bold text-lg"
                         whileHover={{ scale: 1.05 }} // Hover animation (no color change)
                         whileTap={{ scale: 0.95 }} // Click animation
                         transition={{ type: "spring", stiffness: 300 }} // Faster hover animation
                         initial={{ y: 50, opacity: 0 }}
                         animate={{ y: 0, opacity: 1 }}
-                        transition={{ delay: 0.4, duration: 0.5 }}
+                        transition={{ delay: 0, duration: 0.5 }}
                     >
                         Continue with Email
                     </motion.button>
                     <motion.button
                         onClick={() => handleNavigation("/home")}
-                        className="mt-4 w-60 bg-[#FFF8DE] rounded-xl cursor-pointer py-3 font-bold text-lg"
+                        className="mt-4 w-60 bg-[#FFF8DE] text-[#544B3D] rounded-xl cursor-pointer py-3 font-bold text-lg"
                         whileHover={{ scale: 1.05 }} // Hover animation (no color change)
                         whileTap={{ scale: 0.95 }} // Click animation
                         transition={{ type: "spring", stiffness: 300, delay: 0.6, duration: 0.5 }} // Faster hover animation
                         initial={{ y: 50, opacity: 0 }}
                         animate={{ y: 0, opacity: 1 }}
-                        transition={{ delay: 0.6, duration: 0.5 }}
+                        transition={{ delay: 0, duration: 0.5 }}
                     >
                         Debug Mode
                     </motion.button>

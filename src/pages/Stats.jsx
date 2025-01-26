@@ -1,12 +1,17 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
-import { motion, AnimatePresence } from "framer-motion"; // Import Framer Motion
+import { motion, AnimatePresence } from "framer-motion";
 import NimbusCloud from "../assets/cloud2.svg";
 import SearchIcon from "../assets/search.svg";
 import BellIcon from "../assets/bell.svg";
 import Logout from "../assets/logout.svg";
 import { useUser } from "../lib/context/user";
 import { Query } from "appwrite";
+import { useTheme } from "../lib/context/theme";
+import darkSearch from "../assets/darkSearch.svg";
+import darkBell from "../assets/darkBell.svg";
+import darkLogout from "../assets/darkLogout.svg";
+import Credit from "../assets/credit.svg";
 
 const Stats = () => {
     const [showModal, setShowModal] = useState(false);
@@ -26,12 +31,17 @@ const Stats = () => {
     const [searchQuery, setSearchQuery] = useState("");
     const [searchResults, setSearchResults] = useState([]);
     const [friends, setFriends] = useState([]);
+    const [isExiting, setIsExiting] = useState(false);
+    const [exitRoute, setExitRoute] = useState(null);
     const sidebarRef = useRef(null);
+
+    const [showNotifications, setShowNotifications] = useState(false);
+    const [showProfile, setShowProfile] = useState(false);
 
     const navigate = useNavigate();
     const { current, logout, fetchStats, updateStats, fetchFriends, updateFriends, databases } = useUser();
+    const { isDarkMode, toggleDarkMode } = useTheme();
 
-    // Fetch stats from Appwrite when the component mounts
     useEffect(() => {
         async function loadStats() {
             if (current) {
@@ -45,7 +55,6 @@ const Stats = () => {
         loadStats();
     }, [current, fetchStats]);
 
-    // Fetch the user's friends list when the component mounts
     useEffect(() => {
         async function loadFriends() {
             if (current) {
@@ -66,7 +75,6 @@ const Stats = () => {
         loadFriends();
     }, [current, fetchFriends, databases]);
 
-    // Search for users in the database
     const handleSearch = async () => {
         if (searchQuery.trim() === "") {
             setSearchResults([]);
@@ -92,7 +100,6 @@ const Stats = () => {
         }
     };
 
-    // Follow a user
     const handleFollow = async (friendID, friendName) => {
         try {
             const updatedFriends = [...friends, { id: friendID, name: friendName }];
@@ -107,7 +114,6 @@ const Stats = () => {
         }
     };
 
-    // Unfollow a user
     const handleUnfollow = async (friendID) => {
         try {
             const updatedFriends = friends.filter((friend) => friend.id !== friendID);
@@ -121,7 +127,6 @@ const Stats = () => {
         }
     };
 
-    // Close sidebar if click is outside
     useEffect(() => {
         function handleClickOutside(e) {
             if (sidebarRef.current && !sidebarRef.current.contains(e.target)) {
@@ -186,7 +191,13 @@ const Stats = () => {
     const handleSubmit = async () => {
         const percentage = calculatePercentage();
         const updatedStats = stats.map((stat) =>
-            stat.name === selectedStat ? { ...stat, value: percentage } : stat
+            stat.name === selectedStat
+                ? {
+                    ...stat,
+                    value: percentage,
+                    lastModified: Date.now()
+                }
+                : stat
         );
         setStats(updatedStats);
 
@@ -202,317 +213,473 @@ const Stats = () => {
     };
 
     const handleLogout = async () => {
-        await logout();
-        navigate("/");
+        setExitRoute("logout");
+        setIsExiting(true);
+    };
+
+    const handleNavigation = (route) => {
+        setExitRoute(route);
+        setIsExiting(true);
+    };
+
+    const handleExitComplete = async () => {
+        if (isExiting && exitRoute) {
+            if (exitRoute === "logout") {
+                await logout();
+                navigate("/");
+            } else {
+                navigate(exitRoute);
+            }
+        }
     };
 
     return (
-        <div className="flex h-screen font-['Red_Hat_Display'] text-[#544B3D] bg-[#FAF7EC] relative">
-            {/* Sidebar */}
-            <div
-                ref={sidebarRef}
-                className={`transition-all duration-300 bg-[#FFDB33] rounded-r-4xl flex flex-col justify-between items-center py-4 hover:shadow-[0_0_12px_rgba(255,219,51,0.6)] ${sidebarExpanded ? "w-40" : "w-10"
-                    }`}
-                onClick={(e) => {
-                    e.stopPropagation();
-                    setSidebarExpanded(!sidebarExpanded);
-                }}
-            >
-            </div>
-
-            {/* Middle Section */}
-            <div className="flex-grow px-8 py-6 flex flex-col">
-                <div className="flex items-center">
-                    <img src={NimbusCloud} alt="Nimbus Cloud" className="w-11 h-11 mr-2" />
-                    <div>
-                        <h1 className="text-3xl font-black leading-none">Stats</h1>
-                        <p className="text-sm font-bold mt-[-4px]">Manage your stats!</p>
-                    </div>
-                </div>
-
-                {/* Stats Section */}
-                <div className="flex-grow bg-white rounded-xl p-6 mt-6">
-                    <div className="flex justify-between items-center">
-                        <div>
-                            <div className="font-black text-2xl leading-none">{current?.name || "Username"}</div>
-                            <div className="font-semibold text-lg mt-[-4px]">Newbie</div>
-                        </div>
-                        <motion.button
-                            onClick={() => setShowModal(true)}
-                            className="bg-[#FFDB33] font-black text-sm rounded-xl px-4 py-2 cursor-pointer"
-                            whileHover={{ scale: 1.05 }}
-                            whileTap={{ scale: 0.95 }}
-                        >
-                            Manage Stats
-                        </motion.button>
-                    </div>
-
-                    <div className="mt-3 space-y-3">
-                        {stats.map((stat, index) => (
-                            <div key={index}>
-                                <div className="flex justify-between font-black text-lg mb-1">
-                                    <span>{stat.name}</span>
-                                    <span>{stat.value}%</span>
-                                </div>
-                                <div className="w-full bg-gray-200 rounded-full h-2">
-                                    <motion.div
-                                        className="bg-[#FFDB33] h-2 rounded-full"
-                                        style={{ width: `${stat.value}%` }}
-                                        initial={{ width: 0 }}
-                                        animate={{ width: `${stat.value}%` }}
-                                        transition={{ duration: 0.5 }}
-                                    />
-                                </div>
-                            </div>
-                        ))}
-                        <motion.button
-                            onClick={() => navigate("/home")}
-                            className="bg-[#FFDB33] font-black text-sm rounded-xl px-4 py-2 mt-4 cursor-pointer"
-                            whileHover={{ scale: 1.05 }}
-                            whileTap={{ scale: 0.95 }}
-                        >
-                            Return to Home
-                        </motion.button>
-                    </div>
-                </div>
-            </div>
-
-            {/* Right Section */}
-            <div className="w-80 border-l-2 border-[#D3CFC3] px-6 py-6 flex flex-col">
-                <div className="flex justify-between items-center">
-                    <motion.button
-                        className="bg-white rounded-xl p-2 w-10 h-10 cursor-pointer"
-                        whileHover={{ scale: 1.1 }}
-                        whileTap={{ scale: 0.95 }}
-                    >
-                        <img src={BellIcon} alt="Notifications" className="w-6 h-6" />
-                    </motion.button>
-                    <motion.button
-                        onClick={handleLogout}
-                        className="bg-white rounded-xl p-2 w-10 h-10 cursor-pointer"
-                        whileHover={{ scale: 1.1 }}
-                        whileTap={{ scale: 0.95 }}
-                    >
-                        <img src={Logout} alt="Logout" className="w-6 h-6" />
-                    </motion.button>
-                    <motion.button
-                        className="bg-white rounded-xl p-2 w-10 h-10 border-2 border-[#FFDB33] cursor-pointer"
-                        whileHover={{ scale: 1.1 }}
-                        whileTap={{ scale: 0.95 }}
-                    >
-                        {current && (
-                            <img
-                                src={`https://cloud.appwrite.io/v1/avatars/initials?name=${current?.name || "User"
-                                    }&width=40&height=40`}
-                                alt="Profile"
-                                className="w-6 h-6 rounded-full"
-                            />
-                        )}
-                    </motion.button>
-                </div>
-
-                {/* Search Bar */}
-                <div className="mt-6 flex items-center bg-white rounded-xl px-4 py-2 h-11">
-                    <img src={SearchIcon} alt="Search" className="w-5 h-5 mr-2" />
-                    <input
-                        type="text"
-                        placeholder="Search for friends"
-                        className="bg-transparent outline-none flex-grow font-semibold text-sm"
-                        value={searchQuery}
-                        onChange={(e) => {
-                            setSearchQuery(e.target.value);
-                            handleSearch();
+        <AnimatePresence onExitComplete={handleExitComplete}>
+            {!isExiting && (
+                <motion.div
+                    key="stats"
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                    transition={{ duration: 0.3 }}
+                    className={`flex h-screen font-RedHatDisplay transition-all duration-300 ${isDarkMode
+                        ? "text-[#F4E5AF] bg-[#1A1A1A]"
+                        : "text-[#544B3D] bg-[#FAF7EC]"
+                        } overflow-hidden`}
+                >
+                    {/* Sidebar */}
+                    <motion.div
+                        ref={sidebarRef}
+                        initial={{ x: -100, opacity: 0 }}
+                        animate={{ x: 0, opacity: 1 }}
+                        transition={{ delay: 0.2, duration: 0.5 }}
+                        className={`transition-all duration-300 bg-[#FFDB33] rounded-r-4xl flex flex-col justify-center items-center py-4 hover:shadow-[0_0_12px_rgba(255,219,51,0.6)] ${sidebarExpanded ? "w-40" : "w-9"}`}
+                        onClick={(e) => {
+                            e.stopPropagation();
+                            setSidebarExpanded(!sidebarExpanded);
                         }}
-                    />
-                </div>
+                    >
+                        <AnimatePresence>
+                            {sidebarExpanded && (
+                                <motion.img
+                                    src={Credit}
+                                    alt="Credit"
+                                    initial={{ opacity: 0 }}
+                                    animate={{ opacity: 1 }}
+                                    exit={{ opacity: 0 }}
+                                    transition={{ duration: 0.2 }}
+                                    className="w-30 h-30"
+                                />
+                            )}
+                        </AnimatePresence>
+                    </motion.div>
 
-                {/* Search Results */}
-                {searchQuery.trim() !== "" && (
-                    <div className="bg-white rounded-xl p-4 mt-4">
-                        <h2 className="font-black text-lg mb-2">Search Results</h2>
-                        {searchResults.length > 0 ? (
-                            searchResults.map((user) => (
-                                <motion.div
-                                    key={user.$id}
-                                    className="flex justify-between items-center mb-2 cursor-pointer"
-                                    whileHover={{ scale: 1.02 }}
-                                    whileTap={{ scale: 0.98 }}
-                                >
-                                    <span>{user.name}</span>
-                                    <motion.button
-                                        onClick={() => handleFollow(user.$id, user.name)}
-                                        className="bg-[#FFDB33] font-black text-sm rounded-xl px-3 py-1 cursor-pointer"
-                                        whileHover={{ scale: 1.05 }}
-                                        whileTap={{ scale: 0.95 }}
-                                    >
-                                        Follow
-                                    </motion.button>
-                                </motion.div>
-                            ))
-                        ) : (
-                            <p className="text-sm">No results found.</p>
-                        )}
-                    </div>
-                )}
+                    {/* Middle Section */}
+                    <motion.div
+                        initial={{ y: 50, opacity: 0 }}
+                        animate={{ y: 0, opacity: 1 }}
+                        transition={{ delay: 0.4, duration: 0.5 }}
+                        className="flex-grow px-8 py-6 flex flex-col"
+                    >
+                        <div className="flex items-center">
+                            <motion.img
+                                src={NimbusCloud}
+                                alt="Nimbus Cloud"
+                                className="w-11 h-11 mr-2 cursor-pointer"
+                                whileHover={{
+                                    scale: 1.1,
+                                    filter: isDarkMode ? "brightness(1.2)" : "brightness(0.9)",
+                                    transition: { duration: 0.3 }
+                                }}
+                                onClick={toggleDarkMode}
+                            />
+                            <div>
+                                <h1 className="text-3xl font-black leading-none">Stats</h1>
+                                <p className="text-sm font-bold mt-[-4px]">Manage your stats!</p>
+                            </div>
+                        </div>
 
-                {/* Friends Box */}
-                <div className="bg-white rounded-xl flex-grow p-6 mt-4 font-black text-xl">
-                    <h2 className="font-black text-lg mb-2">Friends</h2>
-                    {friends.length > 0 ? (
-                        friends.map((friend) => (
-                            <motion.div
-                                key={friend.id}
-                                className="flex justify-between items-center mb-2 cursor-pointer"
-                                whileHover={{ scale: 1.02 }}
-                                whileTap={{ scale: 0.98 }}
-                            >
-                                <span>{friend.name}</span>
+                        {/* Stats Section */}
+                        <div className={`transition-colors duration-300 ${isDarkMode ? "bg-[#2F2F2F]" : "bg-white"
+                            } rounded-xl p-6 mt-6`}>
+                            <div className="flex justify-between items-center">
+                                <div>
+                                    <div className="font-black text-2xl leading-none">{current?.name || "Username"}</div>
+                                    <div className="font-semibold text-lg mt-[-4px]">Explorer</div>
+                                </div>
                                 <motion.button
-                                    onClick={() => handleUnfollow(friend.id)}
-                                    className="bg-red-500 text-white font-black text-sm rounded-xl px-3 py-1 cursor-pointer"
+                                    onClick={() => setShowModal(true)}
+                                    className="bg-[#FFDB33] font-black text-sm text-[#544B3D] rounded-xl px-4 py-2 cursor-pointer"
                                     whileHover={{ scale: 1.05 }}
                                     whileTap={{ scale: 0.95 }}
                                 >
-                                    Unfollow
+                                    Manage Stats
                                 </motion.button>
-                            </motion.div>
-                        ))
-                    ) : (
-                        <p className="text-sm">No friends yet.</p>
-                    )}
-                </div>
-            </div>
+                            </div>
 
-            {/* Modal */}
-            <AnimatePresence>
-                {showModal && (
-                    <motion.div
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        exit={{ opacity: 0 }}
-                        className="fixed inset-0 bg-white bg-opacity-40 backdrop-blur-sm flex items-center justify-center z-50"
-                    >
-                        <motion.div
-                            initial={{ scale: 0.9, opacity: 0 }}
-                            animate={{ scale: 1, opacity: 1 }}
-                            exit={{ scale: 0.9, opacity: 0 }}
-                            className="bg-white rounded-xl p-6 w-96"
-                        >
-                            {!selectedStat ? (
-                                <>
-                                    <h2 className="text-xl font-black">Select a Main Stat</h2>
-                                    <div className="mt-4 space-y-2">
-                                        {stats.map((stat, index) => (
-                                            <motion.button
-                                                key={index}
-                                                onClick={() => setSelectedStat(stat.name)}
-                                                className={`w-full p-3 rounded-xl font-bold text-left ${selectedStat === stat.name
-                                                    ? "bg-[#FFDB33]"
-                                                    : "bg-gray-100 hover:bg-[#FFDB33]"
-                                                    } cursor-pointer`}
-                                                whileHover={{ scale: 1.02 }}
-                                                whileTap={{ scale: 0.98 }}
-                                            >
-                                                {stat.name}
-                                            </motion.button>
-                                        ))}
-                                    </div>
-                                    <div className="flex justify-end mt-6">
-                                        <motion.button
-                                            onClick={() => setShowModal(false)}
-                                            className="px-4 py-2 bg-gray-300 rounded-xl mr-2 cursor-pointer"
-                                            whileHover={{ scale: 1.05 }}
-                                            whileTap={{ scale: 0.95 }}
-                                        >
-                                            Cancel
-                                        </motion.button>
-                                        <motion.button
-                                            onClick={() => selectedStat && setCurrentQuestionIndex(0)}
-                                            disabled={!selectedStat}
-                                            className={`px-4 py-2 rounded-xl ${selectedStat ? "bg-[#FFDB33]" : "bg-gray-300"
-                                                } cursor-pointer`}
-                                            whileHover={{ scale: 1.05 }}
-                                            whileTap={{ scale: 0.95 }}
-                                        >
-                                            Next
-                                        </motion.button>
-                                    </div>
-                                </>
-                            ) : (
-                                <>
-                                    <h2 className="text-xl font-black">
-                                        {questions[selectedStat][currentQuestionIndex].question}
-                                    </h2>
-                                    <div className="mt-4 space-y-2">
-                                        {levels.map((level, index) => (
-                                            <motion.button
-                                                key={index}
-                                                onClick={() => handleAnswer(index)}
-                                                className={`w-full p-3 rounded-xl font-bold text-left ${selectedLevel === index * 20
-                                                    ? "bg-[#FFDB33]"
-                                                    : "bg-gray-100 hover:bg-[#FFDB33]"
-                                                    } cursor-pointer`}
-                                                whileHover={{ scale: 1.02 }}
-                                                whileTap={{ scale: 0.98 }}
-                                            >
-                                                {level}
-                                            </motion.button>
-                                        ))}
-                                    </div>
-                                    <div className="flex justify-between mt-6">
-                                        <motion.button
-                                            onClick={() => setSelectedStat(null)}
-                                            className="px-4 py-2 bg-gray-300 rounded-xl cursor-pointer"
-                                            whileHover={{ scale: 1.05 }}
-                                            whileTap={{ scale: 0.95 }}
-                                        >
-                                            Back
-                                        </motion.button>
-                                        <div className="bg-gray-100 rounded-xl px-4 py-2 font-bold">
-                                            {questions[selectedStat][currentQuestionIndex].subStat}
+                            <div className="mt-3 space-y-3">
+                                {stats.map((stat, index) => (
+                                    <div key={index}>
+                                        <div className="flex justify-between font-black text-lg mb-1">
+                                            <span>{stat.name}</span>
+                                            <span>{stat.value}%</span>
                                         </div>
-                                        {currentQuestionIndex < questions[selectedStat].length - 1 ? (
-                                            <motion.button
-                                                onClick={() => {
-                                                    if (selectedLevel !== null) {
-                                                        setAnswers((prev) => [...prev, selectedLevel]);
-                                                        setCurrentQuestionIndex((prev) => prev + 1);
-                                                        setSelectedLevel(null);
-                                                    }
-                                                }}
-                                                disabled={selectedLevel === null}
-                                                className={`px-4 py-2 rounded-xl ${selectedLevel !== null ? "bg-[#FFDB33]" : "bg-gray-300"
-                                                    } cursor-pointer`}
-                                                whileHover={{ scale: 1.05 }}
-                                                whileTap={{ scale: 0.95 }}
-                                            >
-                                                Next
-                                            </motion.button>
-                                        ) : (
-                                            <motion.button
-                                                onClick={() => {
-                                                    if (selectedLevel !== null) {
-                                                        setAnswers((prev) => [...prev, selectedLevel]);
-                                                        handleSubmit();
-                                                    }
-                                                }}
-                                                disabled={selectedLevel === null}
-                                                className={`px-4 py-2 rounded-xl ${selectedLevel !== null ? "bg-[#FFDB33]" : "bg-gray-300"
-                                                    } cursor-pointer`}
-                                                whileHover={{ scale: 1.05 }}
-                                                whileTap={{ scale: 0.95 }}
-                                            >
-                                                Finish
-                                            </motion.button>
-                                        )}
+                                        <div className={`w-full ${isDarkMode ? 'bg-[#1A1A1A]' : 'bg-gray-200'} rounded-full h-2`}>
+                                            <motion.div
+                                                className="bg-[#FFDB33] h-2 rounded-full"
+                                                style={{ width: `${stat.value}%` }}
+                                                initial={{ width: 0 }}
+                                                animate={{ width: `${stat.value}%` }}
+                                                transition={{ duration: 0.5 }}
+                                            />
+                                        </div>
                                     </div>
-                                </>
+                                ))}
+                            </div>
+                        </div>
+
+                        <div className="flex justify-end mt-4">
+                            <motion.button
+                                onClick={() => handleNavigation("/home")}
+                                className="bg-[#FFDB33] font-black text-sm text-[#544B3D] rounded-xl px-4 py-2 cursor-pointer"
+                                whileHover={{ scale: 1.05 }}
+                                whileTap={{ scale: 0.95 }}
+                            >
+                                Return to Home
+                            </motion.button>
+                        </div>
+                    </motion.div>
+
+                    {/* Right Section - Top Buttons */}
+                    <motion.div
+                        initial={{ x: 100, opacity: 0 }}
+                        animate={{ x: 0, opacity: 1 }}
+                        transition={{ delay: 0.6, duration: 0.5 }}
+                        className={`w-80 border-l-2 transition-colors duration-300 ${isDarkMode
+                            ? "border-[#2F2F2F]"
+                            : "border-[#D3CFC3]"
+                            } px-6 py-6 flex flex-col`}
+                    >
+                        <div className="flex justify-between items-center">
+                            <motion.button
+                                onClick={() => setShowProfile(true)}
+                                className="bg-white rounded-xl w-10 h-10 cursor-pointer"
+                                whileHover={{ scale: 1.1 }}
+                                whileTap={{ scale: 0.95 }}
+                            >
+                                {current && (
+                                    <img
+                                        src={`https://cloud.appwrite.io/v1/avatars/initials?name=${current?.name || "User"}&width=40&height=40`}
+                                        alt="Profile"
+                                        className="w-10 h-10 border-[#FFDB33] border-2 rounded-xl"
+                                    />
+                                )}
+                            </motion.button>
+
+                            <div className="flex gap-2">
+                                <motion.button
+                                    onClick={() => setShowNotifications(true)}
+                                    className={`transition-colors duration-300 ${isDarkMode ? "bg-[#2F2F2F]" : "bg-white"} rounded-xl p-2 w-10 h-10 cursor-pointer`}
+                                    whileHover={{ scale: 1.1 }}
+                                    whileTap={{ scale: 0.95 }}
+                                >
+                                    <img
+                                        src={isDarkMode ? darkBell : BellIcon}
+                                        alt="Notifications"
+                                        className="w-6 h-6 transition-all duration-300"
+                                    />
+                                </motion.button>
+                                <motion.button
+                                    onClick={handleLogout}
+                                    className={`transition-colors duration-300 ${isDarkMode ? "bg-[#2F2F2F]" : "bg-white"
+                                        } rounded-xl p-2 w-10 h-10 cursor-pointer`}
+                                    whileHover={{ scale: 1.1 }}
+                                    whileTap={{ scale: 0.95 }}
+                                >
+                                    <img
+                                        src={isDarkMode ? darkLogout : Logout}
+                                        alt="Logout"
+                                        className="w-6 h-6 transition-all duration-300"
+                                    />
+                                </motion.button>
+                            </div>
+                        </div>
+
+                        {/* Search Bar */}
+                        <motion.div
+                            className={`mt-6 flex items-center transition-colors duration-300 ${isDarkMode ? "bg-[#2F2F2F]" : "bg-white"
+                                } rounded-xl px-4 py-2 h-11`}
+                        >
+                            <img
+                                src={isDarkMode ? darkSearch : SearchIcon}
+                                alt="Search"
+                                className="w-5 h-5 mr-2 transition-all duration-300"
+                            />
+                            <input
+                                type="text"
+                                placeholder="Search for friends"
+                                className={`bg-transparent outline-none flex-grow font-semibold text-sm ${isDarkMode ? "text-[#F4E5AF] placeholder-[#F4E5AF]/50" : "text-[#544B3D] placeholder-[#544B3D]/50"
+                                    }`}
+                                value={searchQuery}
+                                onChange={(e) => {
+                                    setSearchQuery(e.target.value);
+                                    handleSearch();
+                                }}
+                            />
+                        </motion.div>
+
+                        {/* Search Results */}
+                        {searchQuery.trim() !== "" && (
+                            <motion.div
+                                className={`transition-colors duration-300 ${isDarkMode ? "bg-[#2F2F2F]" : "bg-white"
+                                    } rounded-xl p-4 mt-4`}
+                            >
+                                <h2 className="font-black text-lg mb-2">Search Results</h2>
+                                {searchResults.length > 0 ? (
+                                    searchResults.map((user) => (
+                                        <motion.div
+                                            key={user.$id}
+                                            className="flex justify-between items-center mb-2 cursor-pointer"
+                                            whileHover={{ scale: 1.02 }}
+                                            whileTap={{ scale: 0.98 }}
+                                        >
+                                            <span>{user.name}</span>
+                                            <motion.button
+                                                onClick={() => handleFollow(user.$id, user.name)}
+                                                className="bg-[#FFDB33] font-black text-sm rounded-xl px-3 py-1 cursor-pointer"
+                                                whileHover={{ scale: 1.05 }}
+                                                whileTap={{ scale: 0.95 }}
+                                            >
+                                                Follow
+                                            </motion.button>
+                                        </motion.div>
+                                    ))
+                                ) : (
+                                    <p className="text-sm">No results found.</p>
+                                )}
+                            </motion.div>
+                        )}
+
+                        {/* Friends Box */}
+                        <motion.div
+                            className={`transition-colors duration-300 ${isDarkMode ? "bg-[#2F2F2F]" : "bg-white"
+                                } rounded-xl flex-grow p-6 mt-4 font-black text-xl`}
+                        >
+                            <h2 className="font-black text-lg mb-2">Friends</h2>
+                            {friends.length > 0 ? (
+                                friends.map((friend) => (
+                                    <motion.div
+                                        key={friend.id}
+                                        className="flex justify-between items-center mb-2 cursor-pointer"
+                                        whileHover={{ scale: 1.02 }}
+                                        whileTap={{ scale: 0.98 }}
+                                    >
+                                        <span>{friend.name}</span>
+                                        <motion.button
+                                            onClick={() => handleUnfollow(friend.id)}
+                                            className="bg-red-500 text-white font-black text-sm rounded-xl px-3 py-1 cursor-pointer"
+                                            whileHover={{ scale: 1.05 }}
+                                            whileTap={{ scale: 0.95 }}
+                                        >
+                                            Unfollow
+                                        </motion.button>
+                                    </motion.div>
+                                ))
+                            ) : (
+                                <p className="text-sm">No friends yet.</p>
                             )}
                         </motion.div>
                     </motion.div>
-                )}
-            </AnimatePresence>
-        </div>
+
+                    {/* Modal */}
+                    <AnimatePresence>
+                        {showModal && (
+                            <motion.div
+                                initial={{ opacity: 0 }}
+                                animate={{ opacity: 1 }}
+                                exit={{ opacity: 0 }}
+                                className={`fixed inset-0 ${isDarkMode
+                                    ? "bg-black bg-opacity-40"
+                                    : "bg-white bg-opacity-40"
+                                    } backdrop-blur-sm flex items-center justify-center z-50`}
+                            >
+                                <motion.div
+                                    initial={{ scale: 0.9, opacity: 0 }}
+                                    animate={{ scale: 1, opacity: 1 }}
+                                    exit={{ scale: 0.9, opacity: 0 }}
+                                    className={`transition-colors duration-300 ${isDarkMode ? "bg-[#2F2F2F]" : "bg-white"
+                                        } rounded-xl p-6 w-96`}
+                                >
+                                    {!selectedStat ? (
+                                        <>
+                                            <h2 className="text-xl font-black">Select a Main Stat</h2>
+                                            <div className="mt-4 space-y-2">
+                                                {stats.map((stat, index) => (
+                                                    <motion.button
+                                                        key={index}
+                                                        onClick={() => setSelectedStat(stat.name)}
+                                                        className={`w-full p-3 rounded-xl font-bold text-left ${selectedStat === stat.name
+                                                            ? "bg-[#FFDB33] text-[#544B3D]"
+                                                            : isDarkMode
+                                                                ? "bg-[#1A1A1A] hover:bg-[#FFDB33] hover:text-[#544B3D]"
+                                                                : "bg-gray-100 hover:bg-[#FFDB33]"
+                                                            } cursor-pointer`}
+                                                        whileHover={{ scale: 1.02 }}
+                                                        whileTap={{ scale: 0.98 }}
+                                                    >
+                                                        {stat.name}
+                                                    </motion.button>
+                                                ))}
+                                            </div>
+                                            <div className="flex justify-end mt-6">
+                                                <motion.button
+                                                    onClick={() => setShowModal(false)}
+                                                    className="px-4 py-2 bg-gray-300 rounded-xl mr-2 cursor-pointer"
+                                                    whileHover={{ scale: 1.05 }}
+                                                    whileTap={{ scale: 0.95 }}
+                                                >
+                                                    Cancel
+                                                </motion.button>
+                                                <motion.button
+                                                    onClick={() => selectedStat && setCurrentQuestionIndex(0)}
+                                                    disabled={!selectedStat}
+                                                    className={`px-4 py-2 rounded-xl ${selectedStat ? "bg-[#FFDB33]" : "bg-gray-300"
+                                                        } cursor-pointer`}
+                                                    whileHover={{ scale: 1.05 }}
+                                                    whileTap={{ scale: 0.95 }}
+                                                >
+                                                    Next
+                                                </motion.button>
+                                            </div>
+                                        </>
+                                    ) : (
+                                        <>
+                                            <h2 className="text-xl font-black">
+                                                {questions[selectedStat][currentQuestionIndex].question}
+                                            </h2>
+                                            <div className="mt-4 space-y-2">
+                                                {levels.map((level, index) => (
+                                                    <motion.button
+                                                        key={index}
+                                                        onClick={() => handleAnswer(index)}
+                                                        className={`w-full p-3 rounded-xl font-bold text-left ${selectedLevel === index * 20
+                                                            ? "bg-[#FFDB33] text-[#544B3D]"
+                                                            : isDarkMode
+                                                                ? "bg-[#1A1A1A] hover:bg-[#FFDB33] hover:text-[#544B3D]"
+                                                                : "bg-gray-100 hover:bg-[#FFDB33]"
+                                                            } cursor-pointer`}
+                                                        whileHover={{ scale: 1.02 }}
+                                                        whileTap={{ scale: 0.98 }}
+                                                    >
+                                                        {level}
+                                                    </motion.button>
+                                                ))}
+                                            </div>
+                                            <div className="flex justify-between mt-6">
+                                                <motion.button
+                                                    onClick={() => setSelectedStat(null)}
+                                                    className="px-4 py-2 bg-gray-300 rounded-xl cursor-pointer"
+                                                    whileHover={{ scale: 1.05 }}
+                                                    whileTap={{ scale: 0.95 }}
+                                                >
+                                                    Back
+                                                </motion.button>
+                                                <div className={`${isDarkMode ? "bg-[#1A1A1A]" : "bg-gray-100"
+                                                    } rounded-xl px-4 py-2 font-bold`}>
+                                                    {questions[selectedStat][currentQuestionIndex].subStat}
+                                                </div>
+                                                {currentQuestionIndex < questions[selectedStat].length - 1 ? (
+                                                    <motion.button
+                                                        onClick={() => {
+                                                            if (selectedLevel !== null) {
+                                                                setAnswers((prev) => [...prev, selectedLevel]);
+                                                                setCurrentQuestionIndex((prev) => prev + 1);
+                                                                setSelectedLevel(null);
+                                                            }
+                                                        }}
+                                                        disabled={selectedLevel === null}
+                                                        className={`px-4 py-2 rounded-xl ${selectedLevel !== null ? "bg-[#FFDB33] text-[#544B3D]" : "bg-gray-300"
+                                                            } cursor-pointer`}
+                                                        whileHover={{ scale: 1.05 }}
+                                                        whileTap={{ scale: 0.95 }}
+                                                    >
+                                                        Next
+                                                    </motion.button>
+                                                ) : (
+                                                    <motion.button
+                                                        onClick={() => {
+                                                            if (selectedLevel !== null) {
+                                                                setAnswers((prev) => [...prev, selectedLevel]);
+                                                                handleSubmit();
+                                                            }
+                                                        }}
+                                                        disabled={selectedLevel === null}
+                                                        className={`px-4 py-2 rounded-xl ${selectedLevel !== null ? "bg-[#FFDB33] text-[#544B3D]" : "bg-gray-300"
+                                                            } cursor-pointer`}
+                                                        whileHover={{ scale: 1.05 }}
+                                                        whileTap={{ scale: 0.95 }}
+                                                    >
+                                                        Finish
+                                                    </motion.button>
+                                                )}
+                                            </div>
+                                        </>
+                                    )}
+                                </motion.div>
+                            </motion.div>
+                        )}
+                    </AnimatePresence>
+
+                    {/* Profile Modal */}
+                    <AnimatePresence>
+                        {showProfile && (
+                            <motion.div
+                                initial={{ opacity: 0, y: -20 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                exit={{ opacity: 0, y: -20 }}
+                                className={`absolute top-24 right-72 z-50 ${isDarkMode ? "bg-[#2F2F2F]" : "bg-white"
+                                    } rounded-xl p-4 shadow-lg w-64`}
+                            >
+                                <div className="font-semibold mb-2">Currently signed in as:</div>
+                                <div className="font-black">{current?.name || "User"}</div>
+                                <motion.button
+                                    onClick={() => setShowProfile(false)}
+                                    className="mt-4 bg-[#FFDB33] text-[#544B3D] font-black text-sm rounded-xl px-4 py-2 w-full cursor-pointer"
+                                    whileHover={{ scale: 1.05 }}
+                                    whileTap={{ scale: 0.95 }}
+                                >
+                                    Close
+                                </motion.button>
+                            </motion.div>
+                        )}
+                    </AnimatePresence>
+
+                    {/* Notifications Modal */}
+                    <AnimatePresence>
+                        {showNotifications && (
+                            <motion.div
+                                initial={{ opacity: 0, y: -20 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                exit={{ opacity: 0, y: -20 }}
+                                className={`absolute top-24 right-32 z-50 ${isDarkMode ? "bg-[#2F2F2F]" : "bg-white"
+                                    } rounded-xl p-4 shadow-lg w-64`}
+                            >
+                                <div className="font-black mb-2">Notifications</div>
+                                <div className="text-sm opacity-70">No new notifications</div>
+                                <motion.button
+                                    onClick={() => setShowNotifications(false)}
+                                    className="mt-4 bg-[#FFDB33] text-[#544B3D] font-black text-sm rounded-xl px-4 py-2 w-full cursor-pointer"
+                                    whileHover={{ scale: 1.05 }}
+                                    whileTap={{ scale: 0.95 }}
+                                >
+                                    Close
+                                </motion.button>
+                            </motion.div>
+                        )}
+                    </AnimatePresence>
+                </motion.div>
+            )}
+        </AnimatePresence>
     );
 };
 
