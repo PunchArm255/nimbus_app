@@ -479,7 +479,7 @@ const Home = () => {
                       searchResults.map((user) => (
                         <motion.div
                           key={user.$id}
-                          className={`flex justify-between items-center mb-2 cursor-pointer font-bold transition-colors duration-300 transition-[color] duration-0 ${isDarkMode ? "bg-[#1A1A1A] text-[#F4E5AF]" : "bg-[#F3E6B2] text-[#544B3D]"
+                          className={`flex justify-between items-center mb-2 cursor-pointer font-bold transition-colors duration-300 transition-[color] duration-0 ${isDarkMode ? "bg-[#1A1A1A] text-[#F4E5AF]" : "bg-[#FAF7EC] text-[#544B3D]"
                             } rounded-2xl p-4`}
                           whileHover={{ scale: 1.02 }}
                           whileTap={{ scale: 0.98 }}
@@ -504,7 +504,7 @@ const Home = () => {
                   friends.map((friend) => (
                     <motion.div
                       key={friend.id}
-                      className={`flex justify-between items-center mb-3 font-bold cursor-pointer transition-colors duration-300 transition-[color] duration-0 ${isDarkMode ? "bg-[#1A1A1A] text-[#F4E5AF]" : "bg-[#F3E6B2] text-[#544B3D]"
+                      className={`flex justify-between items-center mb-3 font-bold cursor-pointer transition-colors duration-300 transition-[color] duration-0 ${isDarkMode ? "bg-[#1A1A1A] text-[#F4E5AF]" : "bg-[#FAF7EC] text-[#544B3D]"
                         } rounded-2xl p-4`}
                       whileHover={{ scale: 1.02 }}
                       whileTap={{ scale: 0.98 }}
@@ -616,7 +616,7 @@ const Home = () => {
                     searchResults.map((user) => (
                       <motion.div
                         key={user.$id}
-                        className={`flex justify-between items-center mb-2 cursor-pointer font-bold transition-colors duration-300 transition-[color] duration-0 ${isDarkMode ? "bg-[#1A1A1A] text-[#F4E5AF]" : "bg-[#F3E6B2] text-[#544B3D]"
+                        className={`flex justify-between items-center mb-2 cursor-pointer font-bold transition-colors duration-300 transition-[color] duration-0 ${isDarkMode ? "bg-[#1A1A1A] text-[#F4E5AF]" : "bg-[#FAF7EC] text-[#544B3D]"
                           } rounded-2xl p-4`}
                         whileHover={{ scale: 1.02 }}
                         whileTap={{ scale: 0.98 }}
@@ -650,7 +650,7 @@ const Home = () => {
                   friends.map((friend) => (
                     <motion.div
                       key={friend.id}
-                      className={`flex justify-between items-center mb-3 cursor-pointer transition-colors duration-300 transition-[color] duration-0 ${isDarkMode ? "bg-[#1A1A1A] text-[#F4E5AF]" : "bg-[#F3E6B2] text-[#544B3D]"
+                      className={`flex justify-between items-center mb-3 cursor-pointer transition-colors duration-300 transition-[color] duration-0 ${isDarkMode ? "bg-[#1A1A1A] text-[#F4E5AF]" : "bg-[#FAF7EC] text-[#544B3D]"
                         } rounded-2xl p-4`}
                       whileHover={{ scale: 1.02 }}
                       whileTap={{ scale: 0.98 }}
