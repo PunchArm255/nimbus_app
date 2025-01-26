@@ -479,14 +479,15 @@ const Home = () => {
                       searchResults.map((user) => (
                         <motion.div
                           key={user.$id}
-                          className="flex justify-between items-center mb-2 cursor-pointer"
+                          className={`flex justify-between items-center mb-2 cursor-pointer font-bold transition-colors duration-300 transition-[color] duration-0 ${isDarkMode ? "bg-[#1A1A1A] text-[#F4E5AF]" : "bg-[#F3E6B2] text-[#544B3D]"
+                            } rounded-2xl p-4`}
                           whileHover={{ scale: 1.02 }}
                           whileTap={{ scale: 0.98 }}
                         >
                           <span>{user.name}</span>
                           <motion.button
                             onClick={() => handleFollow(user.$id, user.name)}
-                            className="bg-[#FFDB33] font-black text-sm rounded-xl px-3 py-1 cursor-pointer"
+                            className="bg-[#FFDB33] font-black text-[#544B3D] text-sm rounded-xl px-3 py-1 cursor-pointer"
                             whileHover={{ scale: 1.05 }}
                             whileTap={{ scale: 0.95 }}
                           >
@@ -495,7 +496,7 @@ const Home = () => {
                         </motion.div>
                       ))
                     ) : (
-                      <p className="text-sm">No results found.</p>
+                      <p className="text-sm font-bold">No results found.</p>
                     )}
                   </div>
                 )}
@@ -503,7 +504,8 @@ const Home = () => {
                   friends.map((friend) => (
                     <motion.div
                       key={friend.id}
-                      className="flex justify-between items-center mb-3 cursor-pointer"
+                      className={`flex justify-between items-center mb-3 font-bold cursor-pointer transition-colors duration-300 transition-[color] duration-0 ${isDarkMode ? "bg-[#1A1A1A] text-[#F4E5AF]" : "bg-[#F3E6B2] text-[#544B3D]"
+                        } rounded-2xl p-4`}
                       whileHover={{ scale: 1.02 }}
                       whileTap={{ scale: 0.98 }}
                     >
@@ -614,14 +616,15 @@ const Home = () => {
                     searchResults.map((user) => (
                       <motion.div
                         key={user.$id}
-                        className="flex justify-between items-center mb-2 cursor-pointer"
+                        className={`flex justify-between items-center mb-2 cursor-pointer font-bold transition-colors duration-300 transition-[color] duration-0 ${isDarkMode ? "bg-[#1A1A1A] text-[#F4E5AF]" : "bg-[#F3E6B2] text-[#544B3D]"
+                          } rounded-2xl p-4`}
                         whileHover={{ scale: 1.02 }}
                         whileTap={{ scale: 0.98 }}
                       >
                         <span>{user.name}</span>
                         <motion.button
                           onClick={() => handleFollow(user.$id, user.name)}
-                          className="bg-[#FFDB33] font-black text-sm rounded-xl px-3 py-1 cursor-pointer"
+                          className="bg-[#FFDB33] font-black text-[#544B3D] text-sm rounded-xl px-3 py-1 cursor-pointer"
                           whileHover={{ scale: 1.05 }}
                           whileTap={{ scale: 0.95 }}
                         >
@@ -647,7 +650,8 @@ const Home = () => {
                   friends.map((friend) => (
                     <motion.div
                       key={friend.id}
-                      className="flex justify-between items-center mb-3 cursor-pointer"
+                      className={`flex justify-between items-center mb-3 cursor-pointer transition-colors duration-300 transition-[color] duration-0 ${isDarkMode ? "bg-[#1A1A1A] text-[#F4E5AF]" : "bg-[#F3E6B2] text-[#544B3D]"
+                        } rounded-2xl p-4`}
                       whileHover={{ scale: 1.02 }}
                       whileTap={{ scale: 0.98 }}
                     >
@@ -685,7 +689,7 @@ const Home = () => {
                     animate={{ scale: 1, opacity: 1 }}
                     exit={{ scale: 0.9, opacity: 0 }}
                     className={`transition-colors duration-300 ${isDarkMode ? "bg-[#2F2F2F]" : "bg-white"
-                      } rounded-xl p-6 w-96`}
+                      } rounded-2xl p-6 w-96`}
                   >
                     <h2 className="text-xl font-black mb-4">Streak</h2>
                     <p className="text-lg">
@@ -721,7 +725,7 @@ const Home = () => {
                     animate={{ scale: 1, opacity: 1 }}
                     exit={{ scale: 0.9, opacity: 0 }}
                     className={`transition-colors duration-300 ${isDarkMode ? "bg-[#2F2F2F]" : "bg-white"
-                      } rounded-xl p-6 w-96`}
+                      } rounded-2xl p-6 w-96`}
                   >
                     <h2 className="text-xl font-black mb-4">Badge List</h2>
                     <div className="space-y-2">

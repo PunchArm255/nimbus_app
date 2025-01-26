@@ -42,14 +42,14 @@ function Welcome() {
                     <motion.img
                         src={NimbusLogo}
                         alt="Nimbus Logo"
-                        className="w-100 h-30"
+                        className="w-80 h-30"
                         initial={{ y: -50, opacity: 0 }}
                         animate={{ y: 0, opacity: 1 }}
                         transition={{ delay: 0.2, duration: 0.5 }}
                     />
                     <motion.button
                         onClick={() => handleNavigation("/signin")}
-                        className="mt-8 w-60 bg-[#FFF8DE] text-[#544B3D] rounded-xl cursor-pointer py-3 font-bold text-lg"
+                        className="mt-2 w-50 bg-[#FFF8DE] text-[#544B3D] rounded-xl cursor-pointer py-3 font-bold text-sm"
                         whileHover={{ scale: 1.05 }} // Hover animation (no color change)
                         whileTap={{ scale: 0.95 }} // Click animation
                         transition={{ type: "tween", stiffness: 300, delay: 0.2, duration: 0.5 }} // Faster hover animation
@@ -60,7 +60,7 @@ function Welcome() {
                     </motion.button>
                     <motion.button
                         onClick={() => handleNavigation("/home")}
-                        className="mt-4 w-60 bg-[#FFF8DE] text-[#544B3D] rounded-xl cursor-pointer py-3 font-bold text-lg"
+                        className="mt-4 w-50 bg-[#FFF8DE] text-[#544B3D] rounded-xl cursor-pointer py-3 font-bold text-sm"
                         whileHover={{ scale: 1.05 }} // Hover animation (no color change)
                         whileTap={{ scale: 0.95 }} // Click animation
                         transition={{ type: "tween", stiffness: 300, delay: 0.2, duration: 0.5 }} // Faster hover animation

@@ -449,22 +449,22 @@ const Stats = () => {
                             {/* Search Results */}
                             {searchQuery.trim() !== "" && (
                                 <motion.div
-                                    className={`transition-colors duration-300 ${isDarkMode ? "bg-[#2F2F2F]" : "bg-white"
-                                        } rounded-xl p-4 mt-4`}
+                                    className={`transition-colors duration-300 ${isDarkMode ? "bg-[#2F2F2F]" : "bg-white"} rounded-xl p-4 mt-4`}
                                 >
                                     <h2 className="font-black text-lg mb-2">Search Results</h2>
                                     {searchResults.length > 0 ? (
                                         searchResults.map((user) => (
                                             <motion.div
                                                 key={user.$id}
-                                                className="flex justify-between items-center mb-2 cursor-pointer"
+                                                className={`flex justify-between items-center mb-2 cursor-pointer font-bold transition-colors duration-300 transition-[color] duration-0 ${isDarkMode ? "bg-[#1A1A1A] text-[#F4E5AF]" : "bg-[#F3E6B2] text-[#544B3D]"
+                                                    } rounded-2xl p-4`}
                                                 whileHover={{ scale: 1.02 }}
                                                 whileTap={{ scale: 0.98 }}
                                             >
                                                 <span>{user.name}</span>
                                                 <motion.button
                                                     onClick={() => handleFollow(user.$id, user.name)}
-                                                    className="bg-[#FFDB33] font-black text-sm rounded-xl px-3 py-1 cursor-pointer"
+                                                    className="bg-[#FFDB33] font-black text-[#544B3D] text-sm rounded-xl px-3 py-1 cursor-pointer"
                                                     whileHover={{ scale: 1.05 }}
                                                     whileTap={{ scale: 0.95 }}
                                                 >
@@ -488,18 +488,19 @@ const Stats = () => {
                                     friends.map((friend) => (
                                         <motion.div
                                             key={friend.id}
-                                            className="flex justify-between items-center mb-2 cursor-pointer"
+                                            className={`flex justify-between items-center mb-2 cursor-pointer font-bold transition-colors duration-300 transition-[color] duration-0 ${isDarkMode ? "bg-[#1A1A1A] text-[#F4E5AF]" : "bg-[#F3E6B2] text-[#544B3D]"
+                                                } rounded-2xl p-4`}
                                             whileHover={{ scale: 1.02 }}
                                             whileTap={{ scale: 0.98 }}
                                         >
                                             <span>{friend.name}</span>
                                             <motion.button
                                                 onClick={() => handleUnfollow(friend.id)}
-                                                className="bg-red-500 text-white font-black text-sm rounded-xl px-3 py-1 cursor-pointer"
+                                                className="bg-red-500 text-white font-bold text-sm rounded-xl px-2 py-1 cursor-pointer"
                                                 whileHover={{ scale: 1.05 }}
                                                 whileTap={{ scale: 0.95 }}
                                             >
-                                                Unfollow
+                                                Remove
                                             </motion.button>
                                         </motion.div>
                                     ))
