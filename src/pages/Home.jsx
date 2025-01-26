@@ -201,9 +201,7 @@ const Home = () => {
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
           transition={{ duration: 0.3 }}
-          className={`flex h-screen font-RedHatDisplay transition-all duration-300 ${isDarkMode
-            ? "text-[#F4E5AF] bg-[#1A1A1A]"
-            : "text-[#544B3D] bg-[#FAF7EC]"
+          className={`flex h-screen font-RedHatDisplay transition-[background] duration-300 ${isDarkMode ? "text-[#F4E5AF] bg-[#1A1A1A]" : "text-[#544B3D] bg-[#FAF7EC]"
             } overflow-hidden`}
         >
           {/* Sidebar */}
@@ -495,7 +493,7 @@ const Home = () => {
               initial={{ y: 50, opacity: 0 }}
               animate={{ y: 0, opacity: 1 }}
               transition={{ delay: 0.9, duration: 0.5 }}
-              className={`transition-colors duration-300 ${isDarkMode ? "bg-[#2F2F2F]" : "bg-white"
+              className={`transition-[background] duration-300 ${isDarkMode ? "bg-[#2F2F2F]" : "bg-white"
                 } rounded-xl flex-grow p-6 mt-4 font-black text-xl`}
             >
               <h2 className="font-black text-lg mb-2">Friends</h2>
@@ -545,7 +543,7 @@ const Home = () => {
                 >
                   <h2 className="text-xl font-black mb-4">Streak</h2>
                   <p className="text-lg">
-                    Your current streak is: <span className="font-bold">5 days</span>
+                    Your current streak is: <span className="font-bold">1 day</span>
                   </p>
                   <motion.button
                     onClick={() => setShowStreakModal(false)}

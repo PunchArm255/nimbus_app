@@ -242,9 +242,7 @@ const Stats = () => {
                     animate={{ opacity: 1 }}
                     exit={{ opacity: 0 }}
                     transition={{ duration: 0.3 }}
-                    className={`flex h-screen font-RedHatDisplay transition-all duration-300 ${isDarkMode
-                        ? "text-[#F4E5AF] bg-[#1A1A1A]"
-                        : "text-[#544B3D] bg-[#FAF7EC]"
+                    className={`flex h-screen font-RedHatDisplay transition-[background] duration-300 ${isDarkMode ? "text-[#F4E5AF] bg-[#1A1A1A]" : "text-[#544B3D] bg-[#FAF7EC]"
                         } overflow-hidden`}
                 >
                     {/* Sidebar */}
@@ -462,7 +460,7 @@ const Stats = () => {
 
                         {/* Friends Box */}
                         <motion.div
-                            className={`transition-colors duration-300 ${isDarkMode ? "bg-[#2F2F2F]" : "bg-white"
+                            className={`transition-[background] duration-300 ${isDarkMode ? "bg-[#2F2F2F]" : "bg-white"
                                 } rounded-xl flex-grow p-6 mt-4 font-black text-xl`}
                         >
                             <h2 className="font-black text-lg mb-2">Friends</h2>
