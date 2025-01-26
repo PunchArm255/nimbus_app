@@ -1,4 +1,4 @@
-import { ID } from "appwrite";
+import { ID, Query } from "appwrite";
 import { createContext, useContext, useEffect, useState } from "react";
 import { account, databases } from "../appwrite";
 
@@ -35,20 +35,19 @@ export function UserProvider(props) {
     async function register(email, password, name) {
         try {
             console.log("Creating user account...");
-            // Set the user's name during registration
-            await account.create(ID.unique(), email, password, name); // Add the name parameter
+            await account.create(ID.unique(), email, password, name);
             const loggedIn = await login(email, password);
 
             console.log("Creating user document in database...");
             const documentData = {
-                userID: loggedIn.$id, // Ensure this matches the attribute name in the collection
-                name, // Only store the name
+                userID: loggedIn.$id,
+                name,
             };
             console.log("Document Data:", documentData);
 
             await databases.createDocument(
                 "67953c900037179cefda", // Database ID
-                "67953ca0003a82974731", // Collection ID
+                "67953ca0003a82974731", // Users Collection ID
                 ID.unique(),
                 documentData
             );
@@ -58,6 +57,100 @@ export function UserProvider(props) {
         } catch (err) {
             console.error("Error during registration:", err);
             throw err;
+        }
+    }
+
+    async function fetchStats(userID) {
+        try {
+            const response = await databases.listDocuments(
+                "67953c900037179cefda", // Database ID
+                "679563a200150960e723", // Stats Collection ID
+                [Query.equal("userID", userID)] // Filter by userID
+            );
+
+            if (response.documents.length > 0) {
+                return response.documents[0].stats;
+            } else {
+                return null;
+            }
+        } catch (err) {
+            console.error("Error fetching stats:", err);
+            return null;
+        }
+    }
+
+    async function updateStats(userID, stats) {
+        try {
+            const response = await databases.listDocuments(
+                "67953c900037179cefda", // Database ID
+                "679563a200150960e723", // Stats Collection ID
+                [Query.equal("userID", userID)] // Filter by userID
+            );
+
+            if (response.documents.length > 0) {
+                await databases.updateDocument(
+                    "67953c900037179cefda", // Database ID
+                    "679563a200150960e723", // Stats Collection ID
+                    response.documents[0].$id, // Document ID
+                    { stats: JSON.stringify(stats) }
+                );
+            } else {
+                await databases.createDocument(
+                    "67953c900037179cefda", // Database ID
+                    "679563a200150960e723", // Stats Collection ID
+                    ID.unique(),
+                    { userID, stats: JSON.stringify(stats) }
+                );
+            }
+        } catch (err) {
+            console.error("Error updating stats:", err);
+        }
+    }
+
+    async function fetchFriends(userID) {
+        try {
+            const response = await databases.listDocuments(
+                "67953c900037179cefda", // Database ID
+                "67957eb8003cd2256122", // Friends Collection ID
+                [Query.equal("userID", userID)] // Filter by userID
+            );
+
+            if (response.documents.length > 0) {
+                return response.documents[0].friends || [];
+            } else {
+                return [];
+            }
+        } catch (err) {
+            console.error("Error fetching friends:", err);
+            return [];
+        }
+    }
+
+    async function updateFriends(userID, friends) {
+        try {
+            const response = await databases.listDocuments(
+                "67953c900037179cefda", // Database ID
+                "67957eb8003cd2256122", // Friends Collection ID
+                [Query.equal("userID", userID)] // Filter by userID
+            );
+
+            if (response.documents.length > 0) {
+                await databases.updateDocument(
+                    "67953c900037179cefda", // Database ID
+                    "67957eb8003cd2256122", // Friends Collection ID
+                    response.documents[0].$id, // Document ID
+                    { friends }
+                );
+            } else {
+                await databases.createDocument(
+                    "67953c900037179cefda", // Database ID
+                    "67957eb8003cd2256122", // Friends Collection ID
+                    ID.unique(),
+                    { userID, friends }
+                );
+            }
+        } catch (err) {
+            console.error("Error updating friends:", err);
         }
     }
 
@@ -77,7 +170,20 @@ export function UserProvider(props) {
     }, []);
 
     return (
-        <UserContext.Provider value={{ current: user, login, logout, register, loading }}>
+        <UserContext.Provider
+            value={{
+                current: user,
+                login,
+                logout,
+                register,
+                fetchStats,
+                updateStats,
+                fetchFriends,
+                updateFriends,
+                loading,
+                databases,
+            }}
+        >
             {!loading && props.children}
         </UserContext.Provider>
     );

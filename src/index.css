@@ -4,3 +4,35 @@
 .font-RedHatDisplay {
     font-family: "Red Hat Display", sans-serif;
 }
+
+@keyframes zoomIn {
+    from {
+        transform: scale(0.9);
+        opacity: 0;
+    }
+
+    to {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
+@keyframes zoomOut {
+    from {
+        transform: scale(1);
+        opacity: 1;
+    }
+
+    to {
+        transform: scale(0.9);
+        opacity: 0;
+    }
+}
+
+.modal-enter {
+    animation: zoomIn 0.3s ease-out;
+}
+
+.modal-exit {
+    animation: zoomOut 0.3s ease-in;
+}

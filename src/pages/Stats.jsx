@@ -1,31 +1,125 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
+import { motion, AnimatePresence } from "framer-motion"; // Import Framer Motion
 import NimbusCloud from "../assets/cloud2.svg";
-import NimbusLogo from "../assets/cloud.svg";
-import SettingsIcon from "../assets/settings.svg";
-import ProfileIcon from "../assets/profile.png";
 import SearchIcon from "../assets/search.svg";
 import BellIcon from "../assets/bell.svg";
+import Logout from "../assets/logout.svg";
+import { useUser } from "../lib/context/user";
+import { Query } from "appwrite";
 
 const Stats = () => {
-    const [showSettings, setShowSettings] = useState(false);
     const [showModal, setShowModal] = useState(false);
     const [selectedStat, setSelectedStat] = useState(null);
     const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
     const [selectedLevel, setSelectedLevel] = useState(null);
     const [answers, setAnswers] = useState([]);
     const [stats, setStats] = useState([
-        { name: "Social", value: 0 },
-        { name: "Physical", value: 0 },
-        { name: "Lifestyle", value: 0 },
-        { name: "Cognitive", value: 0 },
-        { name: "Emotional", value: 0 },
+        { name: "Physical", value: 0, subStats: ["Endurance", "Strength", "Speed", "Flexibility", "Coordination"] },
+        { name: "Cognitive", value: 0, subStats: ["Memory", "Problem-Solving", "Focus", "Learning Agility", "Creativity"] },
+        { name: "Social", value: 0, subStats: ["Communication", "Empathy", "Leadership", "Conflict Resolution", "Networking"] },
+        { name: "Emotional", value: 0, subStats: ["Resilience", "Self-Awareness", "Emotional Regulation", "Confidence", "Stress Management"] },
+        { name: "Lifestyle", value: 0, subStats: ["Nutrition", "Sleep", "Fitness Routine", "Time Management", "Work-Life Balance"] },
     ]);
 
     const [sidebarExpanded, setSidebarExpanded] = useState(false);
+    const [searchQuery, setSearchQuery] = useState("");
+    const [searchResults, setSearchResults] = useState([]);
+    const [friends, setFriends] = useState([]);
     const sidebarRef = useRef(null);
 
     const navigate = useNavigate();
+    const { current, logout, fetchStats, updateStats, fetchFriends, updateFriends, databases } = useUser();
+
+    // Fetch stats from Appwrite when the component mounts
+    useEffect(() => {
+        async function loadStats() {
+            if (current) {
+                const userStats = await fetchStats(current.$id);
+                if (userStats) {
+                    const parsedStats = JSON.parse(userStats);
+                    setStats(parsedStats);
+                }
+            }
+        }
+        loadStats();
+    }, [current, fetchStats]);
+
+    // Fetch the user's friends list when the component mounts
+    useEffect(() => {
+        async function loadFriends() {
+            if (current) {
+                const friendsList = await fetchFriends(current.$id);
+                const friendsWithNames = await Promise.all(
+                    friendsList.map(async (friendID) => {
+                        const friend = await databases.getDocument(
+                            "67953c900037179cefda", // Database ID
+                            "67953ca0003a82974731", // Users Collection ID
+                            friendID
+                        );
+                        return { id: friendID, name: friend.name };
+                    })
+                );
+                setFriends(friendsWithNames);
+            }
+        }
+        loadFriends();
+    }, [current, fetchFriends, databases]);
+
+    // Search for users in the database
+    const handleSearch = async () => {
+        if (searchQuery.trim() === "") {
+            setSearchResults([]);
+            return;
+        }
+
+        try {
+            const response = await databases.listDocuments(
+                "67953c900037179cefda", // Database ID
+                "67953ca0003a82974731", // Users Collection ID
+                [Query.search("name", searchQuery)]
+            );
+
+            const filteredResults = response.documents.filter(
+                (user) =>
+                    user.$id !== current.$id &&
+                    !friends.some((friend) => friend.id === user.$id)
+            );
+
+            setSearchResults(filteredResults);
+        } catch (err) {
+            console.error("Error searching for users:", err);
+        }
+    };
+
+    // Follow a user
+    const handleFollow = async (friendID, friendName) => {
+        try {
+            const updatedFriends = [...friends, { id: friendID, name: friendName }];
+            setFriends(updatedFriends);
+            await updateFriends(
+                current.$id,
+                updatedFriends.map((friend) => friend.id)
+            );
+            setSearchResults((prev) => prev.filter((user) => user.$id !== friendID));
+        } catch (err) {
+            console.error("Error following user:", err);
+        }
+    };
+
+    // Unfollow a user
+    const handleUnfollow = async (friendID) => {
+        try {
+            const updatedFriends = friends.filter((friend) => friend.id !== friendID);
+            setFriends(updatedFriends);
+            await updateFriends(
+                current.$id,
+                updatedFriends.map((friend) => friend.id)
+            );
+        } catch (err) {
+            console.error("Error unfollowing user:", err);
+        }
+    };
 
     // Close sidebar if click is outside
     useEffect(() => {
@@ -40,46 +134,45 @@ const Stats = () => {
         };
     }, []);
 
-    useEffect(() => {
-        const storedStats = JSON.parse(localStorage.getItem("stats"));
-        if (storedStats) {
-            setStats(storedStats);
-        }
-    }, []);
-
-    useEffect(() => {
-        localStorage.setItem("stats", JSON.stringify(stats));
-    }, [stats]);
-
     const questions = {
-        Social: [
-            "How active are you in social gatherings?",
-            "How often do you communicate with friends?",
-            "How confident are you in networking situations?",
-        ],
         Physical: [
-            "How often do you exercise?",
-            "How would you rate your endurance?",
-            "How flexible is your body?",
-        ],
-        Lifestyle: [
-            "How balanced is your work-life routine?",
-            "How would you rate your sleep quality?",
-            "How healthy is your diet?",
+            { question: "How long can you sustain physical activity without feeling exhausted?", subStat: "Endurance" },
+            { question: "How much weight can you comfortably lift or carry?", subStat: "Strength" },
+            { question: "How quickly can you complete a short sprint or physical task?", subStat: "Speed" },
+            { question: "How easily can you perform stretches or movements requiring a full range of motion?", subStat: "Flexibility" },
+            { question: "How well can you perform tasks that require hand-eye coordination, like catching a ball?", subStat: "Coordination" },
         ],
         Cognitive: [
-            "How often do you engage in problem-solving tasks?",
-            "How would you rate your focus during work or study?",
-            "How quickly do you learn new skills?",
+            { question: "How easily can you recall information you learned a week ago?", subStat: "Memory" },
+            { question: "How quickly can you find a solution to an unexpected challenge?", subStat: "Problem-Solving" },
+            { question: "How long can you concentrate on a task without getting distracted?", subStat: "Focus" },
+            { question: "How quickly can you pick up a new skill or concept?", subStat: "Learning Agility" },
+            { question: "How often do you come up with original ideas or solutions?", subStat: "Creativity" },
+        ],
+        Social: [
+            { question: "How effectively can you express your thoughts and ideas to others?", subStat: "Communication" },
+            { question: "How well can you understand and share the feelings of others?", subStat: "Empathy" },
+            { question: "How confidently can you guide a group toward a common goal?", subStat: "Leadership" },
+            { question: "How well can you resolve disagreements or misunderstandings?", subStat: "Conflict Resolution" },
+            { question: "How easily can you build and maintain professional or personal connections?", subStat: "Networking" },
         ],
         Emotional: [
-            "How well do you handle stress?",
-            "How confident are you in difficult situations?",
-            "How aware are you of your emotions?",
+            { question: "How quickly can you bounce back from setbacks or failures?", subStat: "Resilience" },
+            { question: "How well do you understand your own emotions and triggers?", subStat: "Self-Awareness" },
+            { question: "How well can you manage your emotions in stressful situations?", subStat: "Emotional Regulation" },
+            { question: "How often do you feel assured in your abilities and decisions?", subStat: "Confidence" },
+            { question: "How effectively can you handle high-pressure situations?", subStat: "Stress Management" },
+        ],
+        Lifestyle: [
+            { question: "How balanced and healthy is your daily diet?", subStat: "Nutrition" },
+            { question: "How consistently do you get 7-8 hours of quality sleep?", subStat: "Sleep" },
+            { question: "How regularly do you engage in physical exercise?", subStat: "Fitness Routine" },
+            { question: "How effectively do you prioritize and complete tasks?", subStat: "Time Management" },
+            { question: "How well do you balance your professional and personal life?", subStat: "Work-Life Balance" },
         ],
     };
 
-    const levels = ["Not Active", "Beginner", "Intermediate", "Advanced", "Expert"];
+    const levels = ["Novice", "Apprentice", "Adept", "Expert", "Master"];
 
     const handleAnswer = (levelIndex) => {
         setSelectedLevel(levelIndex * 20);
@@ -90,18 +183,27 @@ const Stats = () => {
         return Math.round(answers.reduce((sum, value) => sum + value, 0) / answers.length);
     };
 
-    const handleSubmit = () => {
+    const handleSubmit = async () => {
         const percentage = calculatePercentage();
-        setStats((prevStats) =>
-            prevStats.map((stat) =>
-                stat.name === selectedStat ? { ...stat, value: percentage } : stat
-            )
+        const updatedStats = stats.map((stat) =>
+            stat.name === selectedStat ? { ...stat, value: percentage } : stat
         );
+        setStats(updatedStats);
+
+        if (current) {
+            await updateStats(current.$id, updatedStats);
+        }
+
         setShowModal(false);
         setSelectedStat(null);
         setAnswers([]);
         setCurrentQuestionIndex(0);
         setSelectedLevel(null);
+    };
+
+    const handleLogout = async () => {
+        await logout();
+        navigate("/");
     };
 
     return (
@@ -119,7 +221,7 @@ const Stats = () => {
             </div>
 
             {/* Middle Section */}
-            <div className="flex-grow px-8 py-6">
+            <div className="flex-grow px-8 py-6 flex flex-col">
                 <div className="flex items-center">
                     <img src={NimbusCloud} alt="Nimbus Cloud" className="w-11 h-11 mr-2" />
                     <div>
@@ -129,43 +231,48 @@ const Stats = () => {
                 </div>
 
                 {/* Stats Section */}
-                <div className="flex mt-6 h-full">
-                    <div className="flex-grow bg-white rounded-xl p-6">
-                        <div className="flex justify-between items-center">
-                            <div>
-                                <div className="font-black text-2xl leading-none">PunchArm255</div>
-                                <div className="font-semibold text-lg mt-[-4px]">Newbie</div>
-                            </div>
-                            <button
-                                onClick={() => setShowModal(true)}
-                                className="bg-[#FFDB33] font-black text-sm rounded-xl px-4 py-2"
-                            >
-                                Manage Stats
-                            </button>
+                <div className="flex-grow bg-white rounded-xl p-6 mt-6">
+                    <div className="flex justify-between items-center">
+                        <div>
+                            <div className="font-black text-2xl leading-none">{current?.name || "Username"}</div>
+                            <div className="font-semibold text-lg mt-[-4px]">Newbie</div>
                         </div>
+                        <motion.button
+                            onClick={() => setShowModal(true)}
+                            className="bg-[#FFDB33] font-black text-sm rounded-xl px-4 py-2 cursor-pointer"
+                            whileHover={{ scale: 1.05 }}
+                            whileTap={{ scale: 0.95 }}
+                        >
+                            Manage Stats
+                        </motion.button>
+                    </div>
 
-                        <div className="mt-3 space-y-3">
-                            {stats.map((stat, index) => (
-                                <div key={index}>
-                                    <div className="flex justify-between font-black text-lg mb-1">
-                                        <span>{stat.name}</span>
-                                        <span>{stat.value}%</span>
-                                    </div>
-                                    <div className="w-full bg-gray-200 rounded-full h-2">
-                                        <div
-                                            className="bg-[#FFDB33] h-2 rounded-full"
-                                            style={{ width: `${stat.value}%` }}
-                                        ></div>
-                                    </div>
+                    <div className="mt-3 space-y-3">
+                        {stats.map((stat, index) => (
+                            <div key={index}>
+                                <div className="flex justify-between font-black text-lg mb-1">
+                                    <span>{stat.name}</span>
+                                    <span>{stat.value}%</span>
                                 </div>
-                            ))}
-                            <button
-                                onClick={() => navigate("/home")}
-                                className="bg-[#FFDB33] font-black text-sm rounded-xl px-4 py-2 mt-4"
-                            >
-                                Return to Home
-                            </button>
-                        </div>
+                                <div className="w-full bg-gray-200 rounded-full h-2">
+                                    <motion.div
+                                        className="bg-[#FFDB33] h-2 rounded-full"
+                                        style={{ width: `${stat.value}%` }}
+                                        initial={{ width: 0 }}
+                                        animate={{ width: `${stat.value}%` }}
+                                        transition={{ duration: 0.5 }}
+                                    />
+                                </div>
+                            </div>
+                        ))}
+                        <motion.button
+                            onClick={() => navigate("/home")}
+                            className="bg-[#FFDB33] font-black text-sm rounded-xl px-4 py-2 mt-4 cursor-pointer"
+                            whileHover={{ scale: 1.05 }}
+                            whileTap={{ scale: 0.95 }}
+                        >
+                            Return to Home
+                        </motion.button>
                     </div>
                 </div>
             </div>
@@ -173,126 +280,238 @@ const Stats = () => {
             {/* Right Section */}
             <div className="w-80 border-l-2 border-[#D3CFC3] px-6 py-6 flex flex-col">
                 <div className="flex justify-between items-center">
-                    <button className="bg-white rounded-xl p-2 w-10 h-10">
+                    <motion.button
+                        className="bg-white rounded-xl p-2 w-10 h-10 cursor-pointer"
+                        whileHover={{ scale: 1.1 }}
+                        whileTap={{ scale: 0.95 }}
+                    >
                         <img src={BellIcon} alt="Notifications" className="w-6 h-6" />
-                    </button>
-                    <img src={ProfileIcon} alt="Profile" className="w-10 h-10 rounded-full" />
+                    </motion.button>
+                    <motion.button
+                        onClick={handleLogout}
+                        className="bg-white rounded-xl p-2 w-10 h-10 cursor-pointer"
+                        whileHover={{ scale: 1.1 }}
+                        whileTap={{ scale: 0.95 }}
+                    >
+                        <img src={Logout} alt="Logout" className="w-6 h-6" />
+                    </motion.button>
+                    <motion.button
+                        className="bg-white rounded-xl p-2 w-10 h-10 border-2 border-[#FFDB33] cursor-pointer"
+                        whileHover={{ scale: 1.1 }}
+                        whileTap={{ scale: 0.95 }}
+                    >
+                        {current && (
+                            <img
+                                src={`https://cloud.appwrite.io/v1/avatars/initials?name=${current?.name || "User"
+                                    }&width=40&height=40`}
+                                alt="Profile"
+                                className="w-6 h-6 rounded-full"
+                            />
+                        )}
+                    </motion.button>
                 </div>
 
                 {/* Search Bar */}
-                <div className="mt-6 flex items-center bg-[white] rounded-xl px-4 py-2 h-11">
+                <div className="mt-6 flex items-center bg-white rounded-xl px-4 py-2 h-11">
                     <img src={SearchIcon} alt="Search" className="w-5 h-5 mr-2" />
                     <input
                         type="text"
                         placeholder="Search for friends"
                         className="bg-transparent outline-none flex-grow font-semibold text-sm"
+                        value={searchQuery}
+                        onChange={(e) => {
+                            setSearchQuery(e.target.value);
+                            handleSearch();
+                        }}
                     />
                 </div>
 
+                {/* Search Results */}
+                {searchQuery.trim() !== "" && (
+                    <div className="bg-white rounded-xl p-4 mt-4">
+                        <h2 className="font-black text-lg mb-2">Search Results</h2>
+                        {searchResults.length > 0 ? (
+                            searchResults.map((user) => (
+                                <motion.div
+                                    key={user.$id}
+                                    className="flex justify-between items-center mb-2 cursor-pointer"
+                                    whileHover={{ scale: 1.02 }}
+                                    whileTap={{ scale: 0.98 }}
+                                >
+                                    <span>{user.name}</span>
+                                    <motion.button
+                                        onClick={() => handleFollow(user.$id, user.name)}
+                                        className="bg-[#FFDB33] font-black text-sm rounded-xl px-3 py-1 cursor-pointer"
+                                        whileHover={{ scale: 1.05 }}
+                                        whileTap={{ scale: 0.95 }}
+                                    >
+                                        Follow
+                                    </motion.button>
+                                </motion.div>
+                            ))
+                        ) : (
+                            <p className="text-sm">No results found.</p>
+                        )}
+                    </div>
+                )}
+
                 {/* Friends Box */}
-                <div className="bg-white rounded-xl flex-grow p-6 mt-4 font-black text-xl">Friends</div>
+                <div className="bg-white rounded-xl flex-grow p-6 mt-4 font-black text-xl">
+                    <h2 className="font-black text-lg mb-2">Friends</h2>
+                    {friends.length > 0 ? (
+                        friends.map((friend) => (
+                            <motion.div
+                                key={friend.id}
+                                className="flex justify-between items-center mb-2 cursor-pointer"
+                                whileHover={{ scale: 1.02 }}
+                                whileTap={{ scale: 0.98 }}
+                            >
+                                <span>{friend.name}</span>
+                                <motion.button
+                                    onClick={() => handleUnfollow(friend.id)}
+                                    className="bg-red-500 text-white font-black text-sm rounded-xl px-3 py-1 cursor-pointer"
+                                    whileHover={{ scale: 1.05 }}
+                                    whileTap={{ scale: 0.95 }}
+                                >
+                                    Unfollow
+                                </motion.button>
+                            </motion.div>
+                        ))
+                    ) : (
+                        <p className="text-sm">No friends yet.</p>
+                    )}
+                </div>
             </div>
 
             {/* Modal */}
-            {showModal && (
-                <div className="fixed inset-0 bg-white bg-opacity-40 backdrop-blur-sm flex items-center justify-center z-50">
-                    <div className="bg-white rounded-xl p-6 w-96 transform transition-transform duration-300 animate-zoomIn">
-                        {!selectedStat ? (
-                            <>
-                                <h2 className="text-xl font-black">Select a Main Stat</h2>
-                                <div className="mt-4 space-y-2">
-                                    {stats.map((stat, index) => (
-                                        <button
-                                            key={index}
-                                            onClick={() => setSelectedStat(stat.name)}
-                                            className={`w-full p-3 rounded-xl font-bold text-left ${selectedStat === stat.name
-                                                ? "bg-[#FFDB33]"
-                                                : "bg-gray-100 hover:bg-[#FFDB33]"
-                                                }`}
+            <AnimatePresence>
+                {showModal && (
+                    <motion.div
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        className="fixed inset-0 bg-white bg-opacity-40 backdrop-blur-sm flex items-center justify-center z-50"
+                    >
+                        <motion.div
+                            initial={{ scale: 0.9, opacity: 0 }}
+                            animate={{ scale: 1, opacity: 1 }}
+                            exit={{ scale: 0.9, opacity: 0 }}
+                            className="bg-white rounded-xl p-6 w-96"
+                        >
+                            {!selectedStat ? (
+                                <>
+                                    <h2 className="text-xl font-black">Select a Main Stat</h2>
+                                    <div className="mt-4 space-y-2">
+                                        {stats.map((stat, index) => (
+                                            <motion.button
+                                                key={index}
+                                                onClick={() => setSelectedStat(stat.name)}
+                                                className={`w-full p-3 rounded-xl font-bold text-left ${selectedStat === stat.name
+                                                    ? "bg-[#FFDB33]"
+                                                    : "bg-gray-100 hover:bg-[#FFDB33]"
+                                                    } cursor-pointer`}
+                                                whileHover={{ scale: 1.02 }}
+                                                whileTap={{ scale: 0.98 }}
+                                            >
+                                                {stat.name}
+                                            </motion.button>
+                                        ))}
+                                    </div>
+                                    <div className="flex justify-end mt-6">
+                                        <motion.button
+                                            onClick={() => setShowModal(false)}
+                                            className="px-4 py-2 bg-gray-300 rounded-xl mr-2 cursor-pointer"
+                                            whileHover={{ scale: 1.05 }}
+                                            whileTap={{ scale: 0.95 }}
                                         >
-                                            {stat.name}
-                                        </button>
-                                    ))}
-                                </div>
-                                <div className="flex justify-end mt-6">
-                                    <button
-                                        onClick={() => setShowModal(false)}
-                                        className="px-4 py-2 bg-gray-300 rounded-xl mr-2"
-                                    >
-                                        Cancel
-                                    </button>
-                                    <button
-                                        onClick={() => selectedStat && setCurrentQuestionIndex(0)}
-                                        disabled={!selectedStat}
-                                        className={`px-4 py-2 rounded-xl ${selectedStat ? "bg-[#FFDB33]" : "bg-gray-300"
-                                            }`}
-                                    >
-                                        Next
-                                    </button>
-                                </div>
-                            </>
-                        ) : (
-                            <>
-                                <h2 className="text-xl font-black">
-                                    {questions[selectedStat][currentQuestionIndex]}
-                                </h2>
-                                <div className="mt-4 space-y-2">
-                                    {levels.map((level, index) => (
-                                        <button
-                                            key={index}
-                                            onClick={() => handleAnswer(index)}
-                                            className={`w-full p-3 rounded-xl font-bold text-left ${selectedLevel === index * 20
-                                                ? "bg-[#FFDB33]"
-                                                : "bg-gray-100 hover:bg-[#FFDB33]"
-                                                }`}
-                                        >
-                                            {level}
-                                        </button>
-                                    ))}
-                                </div>
-                                <div className="flex justify-between mt-6">
-                                    <button
-                                        onClick={() => setSelectedStat(null)}
-                                        className="px-4 py-2 bg-gray-300 rounded-xl"
-                                    >
-                                        Back
-                                    </button>
-                                    {currentQuestionIndex < questions[selectedStat].length - 1 ? (
-                                        <button
-                                            onClick={() => {
-                                                if (selectedLevel !== null) {
-                                                    setAnswers((prev) => [...prev, selectedLevel]);
-                                                    setCurrentQuestionIndex((prev) => prev + 1);
-                                                    setSelectedLevel(null);
-                                                }
-                                            }}
-                                            disabled={selectedLevel === null}
-                                            className={`px-4 py-2 rounded-xl ${selectedLevel !== null ? "bg-[#FFDB33]" : "bg-gray-300"
-                                                }`}
+                                            Cancel
+                                        </motion.button>
+                                        <motion.button
+                                            onClick={() => selectedStat && setCurrentQuestionIndex(0)}
+                                            disabled={!selectedStat}
+                                            className={`px-4 py-2 rounded-xl ${selectedStat ? "bg-[#FFDB33]" : "bg-gray-300"
+                                                } cursor-pointer`}
+                                            whileHover={{ scale: 1.05 }}
+                                            whileTap={{ scale: 0.95 }}
                                         >
                                             Next
-                                        </button>
-                                    ) : (
-                                        <button
-                                            onClick={() => {
-                                                if (selectedLevel !== null) {
-                                                    setAnswers((prev) => [...prev, selectedLevel]);
-                                                    handleSubmit();
-                                                }
-                                            }}
-                                            disabled={selectedLevel === null}
-                                            className={`px-4 py-2 rounded-xl ${selectedLevel !== null ? "bg-[#FFDB33]" : "bg-gray-300"
-                                                }`}
+                                        </motion.button>
+                                    </div>
+                                </>
+                            ) : (
+                                <>
+                                    <h2 className="text-xl font-black">
+                                        {questions[selectedStat][currentQuestionIndex].question}
+                                    </h2>
+                                    <div className="mt-4 space-y-2">
+                                        {levels.map((level, index) => (
+                                            <motion.button
+                                                key={index}
+                                                onClick={() => handleAnswer(index)}
+                                                className={`w-full p-3 rounded-xl font-bold text-left ${selectedLevel === index * 20
+                                                    ? "bg-[#FFDB33]"
+                                                    : "bg-gray-100 hover:bg-[#FFDB33]"
+                                                    } cursor-pointer`}
+                                                whileHover={{ scale: 1.02 }}
+                                                whileTap={{ scale: 0.98 }}
+                                            >
+                                                {level}
+                                            </motion.button>
+                                        ))}
+                                    </div>
+                                    <div className="flex justify-between mt-6">
+                                        <motion.button
+                                            onClick={() => setSelectedStat(null)}
+                                            className="px-4 py-2 bg-gray-300 rounded-xl cursor-pointer"
+                                            whileHover={{ scale: 1.05 }}
+                                            whileTap={{ scale: 0.95 }}
                                         >
-                                            Finish
-                                        </button>
-                                    )}
-                                </div>
-                            </>
-                        )}
-                    </div>
-                </div>
-            )}
+                                            Back
+                                        </motion.button>
+                                        <div className="bg-gray-100 rounded-xl px-4 py-2 font-bold">
+                                            {questions[selectedStat][currentQuestionIndex].subStat}
+                                        </div>
+                                        {currentQuestionIndex < questions[selectedStat].length - 1 ? (
+                                            <motion.button
+                                                onClick={() => {
+                                                    if (selectedLevel !== null) {
+                                                        setAnswers((prev) => [...prev, selectedLevel]);
+                                                        setCurrentQuestionIndex((prev) => prev + 1);
+                                                        setSelectedLevel(null);
+                                                    }
+                                                }}
+                                                disabled={selectedLevel === null}
+                                                className={`px-4 py-2 rounded-xl ${selectedLevel !== null ? "bg-[#FFDB33]" : "bg-gray-300"
+                                                    } cursor-pointer`}
+                                                whileHover={{ scale: 1.05 }}
+                                                whileTap={{ scale: 0.95 }}
+                                            >
+                                                Next
+                                            </motion.button>
+                                        ) : (
+                                            <motion.button
+                                                onClick={() => {
+                                                    if (selectedLevel !== null) {
+                                                        setAnswers((prev) => [...prev, selectedLevel]);
+                                                        handleSubmit();
+                                                    }
+                                                }}
+                                                disabled={selectedLevel === null}
+                                                className={`px-4 py-2 rounded-xl ${selectedLevel !== null ? "bg-[#FFDB33]" : "bg-gray-300"
+                                                    } cursor-pointer`}
+                                                whileHover={{ scale: 1.05 }}
+                                                whileTap={{ scale: 0.95 }}
+                                            >
+                                                Finish
+                                            </motion.button>
+                                        )}
+                                    </div>
+                                </>
+                            )}
+                        </motion.div>
+                    </motion.div>
+                )}
+            </AnimatePresence>
         </div>
     );
 };
