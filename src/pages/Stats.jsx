@@ -37,6 +37,7 @@ const Stats = () => {
 
     const [showNotifications, setShowNotifications] = useState(false);
     const [showProfile, setShowProfile] = useState(false);
+    const [isMenuOpen, setIsMenuOpen] = useState(false);
 
     const navigate = useNavigate();
     const { current, logout, fetchStats, updateStats, fetchFriends, updateFriends, databases } = useUser();
@@ -246,13 +247,13 @@ const Stats = () => {
                         className={`flex h-screen font-RedHatDisplay transition-[background] duration-300 ${isDarkMode ? "text-[#F4E5AF] bg-[#1A1A1A]" : "text-[#544B3D] bg-[#FAF7EC]"
                             } overflow-hidden`}
                     >
-                        {/* Sidebar */}
+                        {/* Sidebar - Hidden on Mobile */}
                         <motion.div
                             ref={sidebarRef}
                             initial={{ x: -100, opacity: 0 }}
                             animate={{ x: 0, opacity: 1 }}
                             transition={{ delay: 0.2, duration: 0.5 }}
-                            className={`transition-all duration-300 bg-[#FFDB33] rounded-r-4xl flex flex-col justify-center items-center py-4 hover:shadow-[0_0_12px_rgba(255,219,51,0.6)] ${sidebarExpanded ? "w-40" : "w-9"}`}
+                            className={`hidden md:flex transition-all duration-300 bg-[#FFDB33] rounded-r-4xl flex flex-col justify-center items-center py-4 hover:shadow-[0_0_12px_rgba(255,219,51,0.6)] ${sidebarExpanded ? "w-40" : "w-9"}`}
                             onClick={(e) => {
                                 e.stopPropagation();
                                 setSidebarExpanded(!sidebarExpanded);
@@ -278,23 +279,41 @@ const Stats = () => {
                             initial={{ y: 50, opacity: 0 }}
                             animate={{ y: 0, opacity: 1 }}
                             transition={{ delay: 0.4, duration: 0.5 }}
-                            className="flex-grow px-8 py-6 flex flex-col"
+                            className="flex-grow px-8 py-6 flex flex-col overflow-y-auto md:overflow-y-visible"
                         >
-                            <div className="flex items-center">
-                                <motion.img
-                                    src={NimbusCloud}
-                                    alt="Nimbus Cloud"
-                                    className="w-11 h-11 mr-2 cursor-pointer"
-                                    whileHover={{
-                                        scale: 1.1,
-                                        filter: isDarkMode ? "brightness(1.2)" : "brightness(0.9)",
-                                        transition: { duration: 0.3 }
-                                    }}
-                                    onClick={toggleDarkMode}
-                                />
-                                <div>
-                                    <h1 className="text-3xl font-black leading-none">Stats</h1>
-                                    <p className="text-sm font-bold mt-[-4px]">Manage your stats!</p>
+                            <div className="flex items-center justify-between">
+                                <div className="flex items-center">
+                                    <motion.img
+                                        src={NimbusCloud}
+                                        alt="Nimbus Cloud"
+                                        className="w-11 h-11 mr-2 cursor-pointer"
+                                        whileHover={{
+                                            scale: 1.1,
+                                            filter: isDarkMode ? "brightness(1.2)" : "brightness(0.9)",
+                                            transition: { duration: 0.3 }
+                                        }}
+                                        onClick={toggleDarkMode}
+                                    />
+                                    <div>
+                                        <h1 className="text-3xl font-black leading-none">Stats</h1>
+                                        <p className="text-sm font-bold mt-[-4px]">Manage your stats!</p>
+                                    </div>
+                                </div>
+
+                                {/* Hamburger Menu for Mobile */}
+                                <div className="md:hidden">
+                                    <button onClick={() => setIsMenuOpen(!isMenuOpen)} className="p-2">
+                                        <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h16m-7 6h7"></path>
+                                        </svg>
+                                    </button>
+                                    {isMenuOpen && (
+                                        <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg z-50">
+                                            <button onClick={() => setShowProfile(true)} className="block w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Profile</button>
+                                            <button onClick={() => setShowNotifications(true)} className="block w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Notifications</button>
+                                            <button onClick={handleLogout} className="block w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Logout</button>
+                                        </div>
+                                    )}
                                 </div>
                             </div>
 
@@ -349,12 +368,12 @@ const Stats = () => {
                             </div>
                         </motion.div>
 
-                        {/* Right Section - Top Buttons */}
+                        {/* Right Section - Hidden on Mobile */}
                         <motion.div
                             initial={{ x: 100, opacity: 0 }}
                             animate={{ x: 0, opacity: 1 }}
                             transition={{ delay: 0.6, duration: 0.5 }}
-                            className={`w-80 border-l-2 transition-colors duration-300 ${isDarkMode
+                            className={`hidden md:flex w-80 border-l-2 transition-colors duration-300 ${isDarkMode
                                 ? "border-[#2F2F2F]"
                                 : "border-[#D3CFC3]"
                                 } px-6 py-6 flex flex-col`}

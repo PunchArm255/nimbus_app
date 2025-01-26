@@ -38,6 +38,7 @@ const Home = () => {
   const [showNotifications, setShowNotifications] = useState(false);
   const [showProfile, setShowProfile] = useState(false);
   const [statsFilter, setStatsFilter] = useState('top');
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   const sidebarRef = useRef(null);
   const navigate = useNavigate();
@@ -203,15 +204,16 @@ const Home = () => {
             exit={{ opacity: 0 }}
             transition={{ duration: 0.2 }}
             className={`flex h-screen font-RedHatDisplay transition-[background] duration-300 ${isDarkMode ? "text-[#F4E5AF] bg-[#1A1A1A]" : "text-[#544B3D] bg-[#FAF7EC]"
-              } overflow-hidden`}
+              } md:overflow-hidden overflow-y-auto`}
           >
-            {/* Sidebar */}
+            {/* Sidebar - Hidden on Mobile */}
             <motion.div
               ref={sidebarRef}
               initial={{ x: -100, opacity: 0 }}
               animate={{ x: 0, opacity: 1 }}
               transition={{ delay: 0.2, duration: 0.5 }}
-              className={`transition-all duration-300 bg-[#FFDB33] rounded-r-4xl flex flex-col justify-center items-center py-4 hover:shadow-[0_0_12px_rgba(255,219,51,0.6)] ${sidebarExpanded ? "w-40" : "w-9"}`}
+              className={`hidden md:flex transition-all duration-300 bg-[#FFDB33] rounded-r-4xl flex flex-col justify-center items-center py-4 hover:shadow-[0_0_12px_rgba(255,219,51,0.6)] ${sidebarExpanded ? "w-40" : "w-9"
+                } sticky top-0`}
               onClick={(e) => {
                 e.stopPropagation();
                 setSidebarExpanded(!sidebarExpanded);
@@ -239,27 +241,45 @@ const Home = () => {
               transition={{ delay: 0.4, duration: 0.5 }}
               className="flex-grow px-8 py-6"
             >
-              <div className="flex items-center">
-                <motion.img
-                  src={NimbusCloud}
-                  alt="Nimbus Cloud"
-                  className="w-11 h-11 mr-2 cursor-pointer"
-                  whileHover={{
-                    scale: 1.1,
-                    transition: { duration: 0.3 }
-                  }}
-                  onClick={toggleDarkMode}
-                />
-                <div>
-                  <h1 className="text-3xl font-black leading-none">Dashboard</h1>
-                  <p className="text-sm font-bold mt-[-4px]">
-                    Welcome back, {current?.name || "User"}!
-                  </p>
+              <div className="flex items-center justify-between">
+                <div className="flex items-center">
+                  <motion.img
+                    src={NimbusCloud}
+                    alt="Nimbus Cloud"
+                    className="w-11 h-11 mr-2 cursor-pointer"
+                    whileHover={{
+                      scale: 1.1,
+                      transition: { duration: 0.3 }
+                    }}
+                    onClick={toggleDarkMode}
+                  />
+                  <div>
+                    <h1 className="text-3xl font-black leading-none">Dashboard</h1>
+                    <p className="text-sm font-bold mt-[-4px]">
+                      Welcome back, {current?.name || "User"}!
+                    </p>
+                  </div>
+                </div>
+
+                {/* Hamburger Menu for Mobile */}
+                <div className="md:hidden">
+                  <button onClick={() => setIsMenuOpen(!isMenuOpen)} className="p-2">
+                    <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h16m-7 6h7"></path>
+                    </svg>
+                  </button>
+                  {isMenuOpen && (
+                    <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg z-50">
+                      <button onClick={() => setShowProfile(true)} className="block w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Profile</button>
+                      <button onClick={() => setShowNotifications(true)} className="block w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Notifications</button>
+                      <button onClick={handleLogout} className="block w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Logout</button>
+                    </div>
+                  )}
                 </div>
               </div>
 
               {/* Stats Section */}
-              <div className="flex mt-6">
+              <div className="flex flex-col md:flex-row mt-6">
                 <div className={`flex-grow transition-colors duration-300 ${isDarkMode ? "bg-[#2F2F2F]" : "bg-white"
                   } rounded-xl p-6`}>
                   <div className="flex justify-between items-center">
@@ -269,7 +289,7 @@ const Home = () => {
                       </div>
                       <div className="font-semibold text-lg mt-[-4px]">Explorer</div>
                     </div>
-                    <div className="flex gap-2">
+                    <div className="hidden md:flex gap-2">
                       <motion.button
                         onClick={() => setStatsFilter(statsFilter === 'top' ? 'recent' : 'top')}
                         className={`${isDarkMode ? 'shadow-black/25' : 'shadow-amber-100'} bg-[#F3E6B2] text-[#544B3D] shadow-lg font-black text-sm rounded-xl px-4 py-2 cursor-pointer`}
@@ -308,9 +328,63 @@ const Home = () => {
                       </div>
                     ))}
                   </div>
+
+                  {/* View All and Filter Toggle Buttons - Mobile Only */}
+                  <div className="md:hidden flex gap-2 mt-4">
+                    <motion.button
+                      onClick={() => setStatsFilter(statsFilter === 'top' ? 'recent' : 'top')}
+                      className={`${isDarkMode ? 'shadow-black/25' : 'shadow-amber-100'} bg-[#F3E6B2] text-[#544B3D] shadow-lg font-black text-sm rounded-xl px-4 py-2 cursor-pointer`}
+                      whileHover={{ scale: 1.05 }}
+                      whileTap={{ scale: 0.95 }}
+                    >
+                      {statsFilter === 'top' ? 'Top 3 Stats' : 'Recent'}
+                    </motion.button>
+                    <motion.button
+                      onClick={() => handleNavigation("/Stats")}
+                      className={`${isDarkMode ? 'shadow-black/25' : 'shadow-amber-100'} bg-[#FFDB33] text-[#544B3D] shadow-lg font-black text-sm rounded-xl px-4 py-2 cursor-pointer`}
+                      whileHover={{ scale: 1.05 }}
+                      whileTap={{ scale: 0.95 }}
+                    >
+                      View All
+                    </motion.button>
+                  </div>
                 </div>
 
-                <div className="ml-6 flex flex-col justify-between">
+                {/* Streak and Badges Buttons - Mobile Only */}
+                <div className="md:hidden flex flex-col gap-4 mt-6">
+                  <motion.button
+                    onClick={() => setShowStreakModal(true)}
+                    className={`transition-colors duration-300 ${isDarkMode ? "bg-[#2F2F2F]" : "bg-white"
+                      } rounded-xl p-4 text-xl flex flex-col items-center font-black w-full cursor-pointer`}
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                  >
+                    <img
+                      src={isDarkMode ? darkStreak : StreakIcon}
+                      alt="Streak"
+                      className="w-15 h-15 transition-all duration-300"
+                    />
+                    <span>Streak</span>
+                  </motion.button>
+
+                  <motion.button
+                    onClick={() => setShowBadgesModal(true)}
+                    className={`transition-colors duration-300 ${isDarkMode ? "bg-[#2F2F2F]" : "bg-white"
+                      } rounded-xl p-4 text-xl flex flex-col items-center font-black w-full cursor-pointer`}
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                  >
+                    <img
+                      src={isDarkMode ? darkBadge : BadgeIcon}
+                      alt="Badge"
+                      className="w-15 h-15 transition-all duration-300"
+                    />
+                    <span>Badges</span>
+                  </motion.button>
+                </div>
+
+                {/* Streak and Badges Buttons - Desktop Only */}
+                <div className="hidden md:flex ml-6 flex flex-col justify-between">
                   <motion.button
                     onClick={() => setShowStreakModal(true)}
                     className={`transition-colors duration-300 ${isDarkMode ? "bg-[#2F2F2F]" : "bg-white"
@@ -375,17 +449,88 @@ const Home = () => {
                 </div>
               </div>
 
+              {/* Friends Section - Merged on Mobile */}
+              <div className={`md:hidden transition-[background] duration-300 ${isDarkMode ? "bg-[#2F2F2F]" : "bg-white"
+                } rounded-xl p-6 mt-6`}>
+                <h2 className="font-black text-lg mb-2">Friends</h2>
+                <div className="flex items-center mb-4">
+                  <img
+                    src={isDarkMode ? darkSearch : SearchIcon}
+                    alt="Search"
+                    className="w-5 h-5 mr-2 transition-all duration-300"
+                  />
+                  <input
+                    type="text"
+                    placeholder="Search for friends"
+                    className={`bg-transparent outline-none flex-grow font-semibold text-sm ${isDarkMode ? "text-[#F4E5AF] placeholder-[#F4E5AF]/50" : "text-[#544B3D] placeholder-[#544B3D]/50"
+                      }`}
+                    value={searchQuery}
+                    onChange={(e) => {
+                      setSearchQuery(e.target.value);
+                      handleSearch();
+                    }}
+                  />
+                </div>
+                {searchQuery.trim() !== "" && (
+                  <div className={`transition-colors duration-300 ${isDarkMode ? "bg-[#2F2F2F]" : "bg-white"
+                    } rounded-xl p-4 mt-4`}>
+                    <h2 className="font-black text-lg mb-2">Search Results</h2>
+                    {searchResults.length > 0 ? (
+                      searchResults.map((user) => (
+                        <motion.div
+                          key={user.$id}
+                          className="flex justify-between items-center mb-2 cursor-pointer"
+                          whileHover={{ scale: 1.02 }}
+                          whileTap={{ scale: 0.98 }}
+                        >
+                          <span>{user.name}</span>
+                          <motion.button
+                            onClick={() => handleFollow(user.$id, user.name)}
+                            className="bg-[#FFDB33] font-black text-sm rounded-xl px-3 py-1 cursor-pointer"
+                            whileHover={{ scale: 1.05 }}
+                            whileTap={{ scale: 0.95 }}
+                          >
+                            Follow
+                          </motion.button>
+                        </motion.div>
+                      ))
+                    ) : (
+                      <p className="text-sm">No results found.</p>
+                    )}
+                  </div>
+                )}
+                {friends.length > 0 ? (
+                  friends.map((friend) => (
+                    <motion.div
+                      key={friend.id}
+                      className="flex justify-between items-center mb-3 cursor-pointer"
+                      whileHover={{ scale: 1.02 }}
+                      whileTap={{ scale: 0.98 }}
+                    >
+                      <span>{friend.name}</span>
+                      <motion.button
+                        onClick={() => handleUnfollow(friend.id)}
+                        className="bg-red-500 text-white font-bold text-sm rounded-xl px-2 py-1 cursor-pointer"
+                        whileHover={{ scale: 1.05 }}
+                        whileTap={{ scale: 0.95 }}
+                      >
+                        Remove
+                      </motion.button>
+                    </motion.div>
+                  ))
+                ) : (
+                  <p className="text-sm">No friends yet.</p>
+                )}
+              </div>
             </motion.div>
 
-            {/* Right Section */}
+            {/* Right Section - Hidden on Mobile */}
             <motion.div
               initial={{ x: 100, opacity: 0 }}
               animate={{ x: 0, opacity: 1 }}
               transition={{ delay: 0.6, duration: 0.5 }}
-              className={`w-80 border-l-2 transition-colors duration-300 ${isDarkMode
-                ? "border-[#2F2F2F]"
-                : "border-[#D3CFC3]"
-                } px-6 py-6 flex flex-col`}
+              className={`hidden md:flex w-80 border-l-2 transition-colors duration-300 ${isDarkMode ? "border-[#2F2F2F]" : "border-[#D3CFC3]"
+                } px-6 py-6 flex flex-col sticky top-0`}
             >
               <div className="flex justify-between items-center">
                 <motion.button
