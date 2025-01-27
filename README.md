@@ -44,13 +44,13 @@ src/
 <img width="1920" alt="Frame 19" src="https://github.com/user-attachments/assets/4fcf14a1-72a0-4ec0-889d-c6b64d53168c" />
 <img width="1920" alt="Frame 17" src="https://github.com/user-attachments/assets/08004f85-f329-4d7f-9e23-6b20df53f282" />
 
-<br />
+---
 
 <img width="846" alt="nimbus banner-1" src="https://github.com/user-attachments/assets/6279b151-1212-46df-840b-6ba28004bf1a" />
 <img width="1920" alt="Frame 18" src="https://github.com/user-attachments/assets/45456d5a-3017-4452-94bd-b6113d2c19cb" />
 <img width="1920" alt="Frame 15" src="https://github.com/user-attachments/assets/02649567-671f-493e-83ab-c587bb12e475" />
 
-<br />
+---
 
 ## Presentation & Live Demo
 https://youtu.be/_gZozsTbccA
