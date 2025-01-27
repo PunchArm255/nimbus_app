@@ -39,19 +39,18 @@ src/
 └── App.js          # Main app entry point
 ```
 
-## Screenshots
-<img width="846" alt="nimbus banner" src="https://github.com/user-attachments/assets/ef6db6a4-72bd-494e-b3cb-628729bcca84" />
-<img width="846" alt="nimbus banner-1" src="https://github.com/user-attachments/assets/31697bab-793d-4ad5-b009-91cf59cb094d" />
+## Screenshots & Export Posts
+<img width="846" alt="nimbus banner" src="https://github.com/user-attachments/assets/495bdb93-db85-48e6-a1d7-5bc672ebc686" />
+<img width="1920" alt="Frame 19" src="https://github.com/user-attachments/assets/4fcf14a1-72a0-4ec0-889d-c6b64d53168c" />
+<img width="1920" alt="Frame 17" src="https://github.com/user-attachments/assets/08004f85-f329-4d7f-9e23-6b20df53f282" />
 
-### Dashboard
-![Frame 19](https://github.com/user-attachments/assets/30f64d15-a2ce-4176-a3bf-4c97523bc5ce)
-<img width="1920" alt="Frame 18" src="https://github.com/user-attachments/assets/6f3507c4-dd4f-44b2-a15c-e58bbc35e848" />
+<br />
 
+<img width="846" alt="nimbus banner-1" src="https://github.com/user-attachments/assets/6279b151-1212-46df-840b-6ba28004bf1a" />
+<img width="1920" alt="Frame 18" src="https://github.com/user-attachments/assets/45456d5a-3017-4452-94bd-b6113d2c19cb" />
+<img width="1920" alt="Frame 15" src="https://github.com/user-attachments/assets/02649567-671f-493e-83ab-c587bb12e475" />
 
-### Social Media Export
-![Frame 17](https://github.com/user-attachments/assets/05ab5f3c-6364-463c-807a-9ee3adc2bb12)
-![Frame 15](https://github.com/user-attachments/assets/bfddf229-d69e-486b-a845-b7acd9593274)
-
+<br />
 
 ## Presentation & Live Demo
 https://youtu.be/_gZozsTbccA
